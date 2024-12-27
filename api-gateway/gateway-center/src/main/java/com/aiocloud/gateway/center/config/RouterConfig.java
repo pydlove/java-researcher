@@ -1,0 +1,142 @@
+package com.aiocloud.gateway.center.config;
+
+import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.StrUtil;
+import com.aiocloud.gateway.center.base.ApplicationContextProvider;
+import com.aiocloud.gateway.center.base.HttpUrlSelector;
+import com.aiocloud.gateway.center.base.SelfServerHandler;
+import com.aiocloud.gateway.center.base.DefaultServerHandler;
+import com.aiocloud.gateway.center.base.ServerHandler;
+import com.aiocloud.gateway.center.router.service.RouterRegisterService;
+import com.alibaba.fastjson.JSONObject;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpMethod;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.server.HandlerFunction;
+import org.springframework.web.reactive.function.server.RequestPredicates;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.result.condition.PatternsRequestCondition;
+import org.springframework.web.reactive.result.method.RequestMappingInfo;
+import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerAdapter;
+import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.util.pattern.PathPattern;
+import reactor.core.publisher.Mono;
+
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Set;
+
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+
+/**
+ * @description: RouterConfig.java
+ * @copyright: @copyright (c) 2022
+ * @company: aiocloud
+ * @author: panyong
+ * @version: 1.0.0
+ * @createTime: 2024-12-23 14:48
+ */
+@Slf4j
+@RequiredArgsConstructor
+@Configuration
+public class RouterConfig {
+
+    private final RouterRegisterService routerRegisterService;
+    private final WebClient.Builder webClientBuilder;
+
+    private final RequestMappingHandlerMapping requestMappingHandlerMapping;
+    private final ApplicationContextProvider applicationContextProvider;
+
+    @Value("${service.registry.service-name:gateway-service}")
+    private String gatewayServiceName;
+
+    @Value("${service.registry.registry-url:http://localhost:8080}")
+    private String gatewayRegistryUrl;
+
+    @Bean
+    public RouterFunction<ServerResponse> customRouterFunction() {
+        return route()
+                .filter((request, next) -> doFilter(request, next))
+                .route(RequestPredicates.path("/**"), this::forwardRequest)
+                .build();
+
+    }
+
+    /**
+     * 处理过滤
+     *
+     * @param: request
+     * @param: next
+     * @return: reactor.core.publisher.Mono<org.springframework.web.reactive.function.server.ServerResponse>
+     * @author: panyong
+     * @version: 1.0.0
+     * @createTime: 2024-12-26 18:18
+     * @since 1.0.0
+     */
+    private Mono<ServerResponse> doFilter(ServerRequest request, HandlerFunction<ServerResponse> next) {
+
+        log.info("Received request for path: {}", request.path());
+
+        String path = request.path();
+        if (StrUtil.isEmpty(path)) {
+            throw new RuntimeException();
+        }
+
+        if (BooleanUtil.isTrue(path.startsWith("/" + gatewayServiceName))) {
+            return forwardSelfRequest(request);
+        }
+
+        return next.handle(request);
+    }
+
+    /**
+     * 处理注册中心自己的请求
+     *
+     * @param: request
+     * @return: reactor.core.publisher.Mono<org.springframework.web.reactive.function.server.ServerResponse>
+     * @author: panyong
+     * @version: 1.0.0
+     * @createTime: 2024-12-26 18:18
+     * @since 1.0.0
+     */
+    public Mono<ServerResponse> forwardSelfRequest(ServerRequest request) {
+
+        ServerHandler selfServerHandler = new SelfServerHandler(requestMappingHandlerMapping, applicationContextProvider, gatewayServiceName);
+        return selfServerHandler.handleForwardRequest(request);
+    }
+
+    /**
+     * forwardRequest
+     *
+     * @param: request
+     * @return: reactor.core.publisher.Mono<org.springframework.web.reactive.function.server.ServerResponse>
+     * @author: panyong
+     * @version: 1.0.0
+     * @createTime: 2024-12-24 16:29
+     * @since 1.0.0
+     */
+    private Mono<ServerResponse> forwardRequest(ServerRequest request) {
+
+        HttpMethod httpMethod = request.method();
+
+        // 获取 targetUrl
+        String targetUrl = HttpUrlSelector.getInstance().getTargetUrl(request);
+
+        // 创建 serverHandler
+        ServerHandler serverHandler = new DefaultServerHandler(webClientBuilder, targetUrl);
+
+        // 处理请求转发
+        return serverHandler.handleForwardRequest(request);
+    }
+}

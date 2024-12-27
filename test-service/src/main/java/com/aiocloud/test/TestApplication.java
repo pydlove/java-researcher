@@ -3,6 +3,7 @@ package com.aiocloud.test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  *
@@ -13,11 +14,11 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
  * @version: 1.0.0 
  * @createTime: 2024-12-23 14:48 
  */
+@ComponentScan(basePackages = {"com.aiocloud.test", "com.aiocloud.gateway"})
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 public class TestApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(TestApplication.class, args);
     }
-
 }
