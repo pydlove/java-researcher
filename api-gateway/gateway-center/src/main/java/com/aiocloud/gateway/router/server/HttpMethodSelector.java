@@ -1,4 +1,4 @@
-package com.aiocloud.gateway.center.base;
+package com.aiocloud.gateway.router.server;
 
 import cn.hutool.core.util.StrUtil;
 import org.springframework.http.HttpMethod;

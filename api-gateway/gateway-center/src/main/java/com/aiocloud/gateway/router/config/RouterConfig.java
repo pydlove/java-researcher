@@ -1,41 +1,27 @@
-package com.aiocloud.gateway.center.config;
+package com.aiocloud.gateway.router.config;
 
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.aiocloud.gateway.center.base.ApplicationContextProvider;
-import com.aiocloud.gateway.center.base.HttpUrlSelector;
-import com.aiocloud.gateway.center.base.SelfServerHandler;
-import com.aiocloud.gateway.center.base.DefaultServerHandler;
-import com.aiocloud.gateway.center.base.ServerHandler;
+import com.aiocloud.gateway.base.ApplicationContextProvider;
 import com.aiocloud.gateway.center.router.service.RouterRegisterService;
-import com.alibaba.fastjson.JSONObject;
+import com.aiocloud.gateway.router.server.DefaultServerHandler;
+import com.aiocloud.gateway.router.server.HttpUrlSelector;
+import com.aiocloud.gateway.router.server.SelfServerHandler;
+import com.aiocloud.gateway.router.server.ServerHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpMethod;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.HandlerFunction;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.reactive.result.condition.PatternsRequestCondition;
-import org.springframework.web.reactive.result.method.RequestMappingInfo;
-import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
-import org.springframework.web.util.pattern.PathPattern;
 import reactor.core.publisher.Mono;
-
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Set;
 
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -57,6 +43,7 @@ public class RouterConfig {
 
     private final RequestMappingHandlerMapping requestMappingHandlerMapping;
     private final ApplicationContextProvider applicationContextProvider;
+    private final HttpUrlSelector httpUrlSelector;
 
     @Value("${service.registry.service-name:gateway-service}")
     private String gatewayServiceName;
@@ -131,7 +118,7 @@ public class RouterConfig {
         HttpMethod httpMethod = request.method();
 
         // 获取 targetUrl
-        String targetUrl = HttpUrlSelector.getInstance().getTargetUrl(request);
+        String targetUrl = httpUrlSelector.getTargetUrl(request);
 
         // 创建 serverHandler
         ServerHandler serverHandler = new DefaultServerHandler(webClientBuilder, targetUrl);

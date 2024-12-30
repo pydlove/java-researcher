@@ -1,7 +1,15 @@
 package com.aiocloud.gateway.center.system;
 
+import com.aiocloud.gateway.center.system.loadbalance.LoadBalanceFactory;
+import com.aiocloud.gateway.config.ServiceConfig;
+import com.aiocloud.gateway.core.config.ServiceRegistryConfig;
 import com.aiocloud.gateway.core.registry.ServiceInstance;
+import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,20 +21,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version: 1.0.0
  * @createTime: 2024-12-25 17:24
  */
+@RequiredArgsConstructor
+@Component
 public class ServiceCenter {
 
-    private static class SingletonHolder {
-        private static final ServiceCenter INSTANCE = new ServiceCenter();
-    }
+    private final ServiceConfig serviceConfig;
+    private final LoadBalanceFactory loadBalanceFactory;
 
-    private ServiceCenter() {
-    }
-
-    public static ServiceCenter getInstance() {
-        return SingletonHolder.INSTANCE;
-    }
-
-    private static final Map<String, ServiceInstance> SERVICE_CONTAINER = new ConcurrentHashMap<>();
+    private static final Map<String, List<ServiceInstance>> SERVICE_CONTAINER = new ConcurrentHashMap<>();
 
     /**
      * 注册服务
@@ -40,7 +42,9 @@ public class ServiceCenter {
      */
     public void registerService(ServiceInstance serviceInstance) {
 
-        SERVICE_CONTAINER.put(serviceInstance.getName(), serviceInstance);
+        String serviceName = serviceInstance.getName();
+        List<ServiceInstance> serviceInstances = SERVICE_CONTAINER.computeIfAbsent(serviceName, k -> new ArrayList<>());
+        serviceInstances.add(serviceInstance);
     }
 
     /**
@@ -54,6 +58,9 @@ public class ServiceCenter {
      * @since 1.0.0
      */
     public ServiceInstance getServiceInfo(String serviceName) {
-        return SERVICE_CONTAINER.get(serviceName);
+        List<ServiceInstance> serviceInstances = SERVICE_CONTAINER.get(serviceName);
+
+        // 通过负载均衡的算法获取服务信息
+        return loadBalanceFactory.getServerLoadBalance().selectServer(serviceInstances);
     }
 }

@@ -1,4 +1,4 @@
-package com.aiocloud.gateway.center.config;
+package com.aiocloud.gateway.router.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

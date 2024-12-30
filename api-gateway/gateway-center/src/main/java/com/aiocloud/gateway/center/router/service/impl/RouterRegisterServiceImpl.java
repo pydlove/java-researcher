@@ -5,6 +5,7 @@ import com.aiocloud.gateway.center.router.service.RouterRegisterService;
 import com.aiocloud.gateway.center.system.ServiceCenter;
 import com.aiocloud.gateway.center.system.common.CommonResponse;
 import com.aiocloud.gateway.core.registry.ServiceInstance;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version: 1.0.0
  * @createTime: 2024-12-20 14:05
  */
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class RouterRegisterServiceImpl implements RouterRegisterService {
 
+    private final ServiceCenter serviceCenter;
 
     @Value("${service.registry.service-name:gateway-service}")
     private String gatewayServiceName;
@@ -40,7 +43,7 @@ public class RouterRegisterServiceImpl implements RouterRegisterService {
         try {
 
             // 这里暂时使用缓存进行存储注册服务信息，后续可以改为数据库存储
-            ServiceCenter.getInstance().registerService(serviceInstance);
+            serviceCenter.registerService(serviceInstance);
 
             return new CommonResponse(SystemConstant.RESPONSE_SUCCESS);
 
@@ -57,7 +60,7 @@ public class RouterRegisterServiceImpl implements RouterRegisterService {
         try {
 
             ServiceInstance serviceInstance = new ServiceInstance(gatewayServiceName, gatewayRegistryUrl);
-            ServiceCenter.getInstance().registerService(serviceInstance);
+            serviceCenter.registerService(serviceInstance);
 
             return new CommonResponse(SystemConstant.RESPONSE_SUCCESS);
 

@@ -1,7 +1,9 @@
-package com.aiocloud.gateway.center.base;
+package com.aiocloud.gateway.router.server;
 
 import com.aiocloud.gateway.center.system.ServiceCenter;
 import com.aiocloud.gateway.core.registry.ServiceInstance;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 
 import java.util.Objects;
@@ -14,20 +16,13 @@ import java.util.Objects;
  * @version: 1.0.0
  * @createTime: 2024-12-24 16:19
  */
+@RequiredArgsConstructor
+@Component
 public class HttpUrlSelector {
 
+    private final ServiceCenter serviceCenter;
+
     public static final String HTTP_URL_PREFIX = "/";
-
-    private static class SingletonHolder {
-        private static final HttpUrlSelector INSTANCE = new HttpUrlSelector();
-    }
-
-    public static HttpUrlSelector getInstance() {
-        return SingletonHolder.INSTANCE;
-    }
-
-    private HttpUrlSelector() {
-    }
 
     public String getTargetUrl(ServerRequest request) {
 
@@ -41,7 +36,7 @@ public class HttpUrlSelector {
         }
 
         // 根据 context-path 从注册中心获取服务的 ip 和端口
-        ServiceInstance serviceInfo = ServiceCenter.getInstance().getServiceInfo(contextPath);
+        ServiceInstance serviceInfo = serviceCenter.getServiceInfo(contextPath);
         if (Objects.isNull(serviceInfo)) {
             return null;
         }

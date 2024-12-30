@@ -1,4 +1,4 @@
-package com.aiocloud.gateway.center.base;
+package com.aiocloud.gateway.router.server;
 
 import cn.hutool.core.util.BooleanUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -165,7 +165,7 @@ public class DefaultServerHandler implements ServerHandler {
                 .body(BodyInserters.fromValue(responseBody))
                 .doOnNext(response -> {
 
-                    // 非 200 的响应我需要打印日志
+                    // 非 200 的响应需要打印日志
                     if (BooleanUtil.isFalse(httpStatusCode.is2xxSuccessful())) {
                         log.warn("Non-successful response from target: Status Code: {}, Response Body: {}", httpStatusCode, new String(responseBody, StandardCharsets.UTF_8));
                     }

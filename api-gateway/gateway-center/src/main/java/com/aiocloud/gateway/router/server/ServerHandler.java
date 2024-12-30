@@ -1,4 +1,4 @@
-package com.aiocloud.gateway.center.base;
+package com.aiocloud.gateway.router.server;
 
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;

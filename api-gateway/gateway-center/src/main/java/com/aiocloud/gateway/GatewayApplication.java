@@ -1,13 +1,9 @@
-package com.aiocloud.gateway.center;
+package com.aiocloud.gateway;
 
-import com.aiocloud.gateway.center.router.service.RouterRegisterService;
-import com.aiocloud.gateway.core.registry.ServiceRegistryClient;
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 
 /**
  *
@@ -20,10 +16,10 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @Slf4j
 @SpringBootApplication
-public class GatewayCenterApplication {
+public class GatewayApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GatewayCenterApplication.class, args);
+		SpringApplication.run(GatewayApplication.class, args);
 	}
 
 	@PostConstruct
