@@ -1,8 +1,7 @@
 package com.aiocloud.gateway.center.router.service;
 
-import com.aiocloud.gateway.center.system.common.CommonResponse;
+import com.aiocloud.gateway.base.common.CommonResponse;
 import com.aiocloud.gateway.core.registry.ServiceInstance;
-import reactor.core.publisher.Mono;
 
 /**
  *

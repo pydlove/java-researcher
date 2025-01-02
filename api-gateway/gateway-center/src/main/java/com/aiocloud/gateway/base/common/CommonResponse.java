@@ -1,6 +1,6 @@
-package com.aiocloud.gateway.center.system.common;
+package com.aiocloud.gateway.base.common;
 
-import com.aiocloud.gateway.center.system.exception.ErrorCode;
+import com.aiocloud.gateway.base.exception.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;

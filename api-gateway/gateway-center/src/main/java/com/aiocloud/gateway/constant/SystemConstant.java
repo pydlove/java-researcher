@@ -1,4 +1,4 @@
-package com.aiocloud.gateway.center.constant;
+package com.aiocloud.gateway.constant;
 
 /**
  * @description: SystemConstant.java
@@ -12,4 +12,7 @@ public interface SystemConstant {
 
     String RESPONSE_SUCCESS = "success";
     String RESPONSE_FAIL = "fail";
+    String X_AUTH_TOKEN = "X-Auth-Token";
+    String X_REFRESH_TOKEN = "X-Refresh-Token";
+    String BEARER_PREFIX = "Bearer ";
 }

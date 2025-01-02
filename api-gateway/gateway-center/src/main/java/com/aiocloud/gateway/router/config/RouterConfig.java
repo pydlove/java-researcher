@@ -8,12 +8,15 @@ import com.aiocloud.gateway.router.server.DefaultServerHandler;
 import com.aiocloud.gateway.router.server.HttpUrlSelector;
 import com.aiocloud.gateway.router.server.SelfServerHandler;
 import com.aiocloud.gateway.router.server.ServerHandler;
+import io.asyncer.r2dbc.mysql.constant.ServerStatuses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.HandlerFunction;
 import org.springframework.web.reactive.function.server.RequestPredicates;
@@ -44,6 +47,7 @@ public class RouterConfig {
     private final RequestMappingHandlerMapping requestMappingHandlerMapping;
     private final ApplicationContextProvider applicationContextProvider;
     private final HttpUrlSelector httpUrlSelector;
+    private final TokenCheck tokenCheck;
 
     @Value("${service.registry.service-name:gateway-service}")
     private String gatewayServiceName;
@@ -80,6 +84,12 @@ public class RouterConfig {
             throw new RuntimeException();
         }
 
+        // 进行 token 鉴权
+        if (BooleanUtil.isFalse(tokenCheck.isTokenValid(request))) {
+            return ServerResponse.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // 网关自己的请求无需转发，直接映射自己的方法
         if (BooleanUtil.isTrue(path.startsWith("/" + gatewayServiceName))) {
             return forwardSelfRequest(request);
         }
