@@ -31,7 +31,7 @@ JWT 有什么问题？目前发现 JWT 无法实现续期，实现续期需要�
 4. Issuer (iss) 和 Audience (aud) 检查
 5. 用户是否有权限访问接口（这个是后续扩展）
 
-[link: com.aiocloud.gateway.router.config.TokenCheck](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/config/TokenCheck.java)
+[com.aiocloud.gateway.router.config.TokenCheck](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/config/TokenCheck.java)
 
 ### AntPathMatcher 实现路径的匹配判断
 
@@ -39,8 +39,8 @@ JWT 有什么问题？目前发现 JWT 无法实现续期，实现续期需要�
 可以通过 `AntPathMatcher` 的 `match` 方法进行路径的匹配判断。`AntPathMatcher` 的底层是通过将 URL
 按 `/` 一层一层分割后，对两个数组相同位置做匹配的，`**` 是直接不继续判断后续的匹配。
 
-[link: com.aiocloud.gateway.router.access.WhitelistFilter](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/access/WhitelistFilter.java)  
-[link: com.aiocloud.gateway.router.access.Blacklist](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/access/Blacklist.java)
+[com.aiocloud.gateway.router.access.WhitelistFilter](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/access/WhitelistFilter.java)  
+[com.aiocloud.gateway.router.access.Blacklist](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/access/Blacklist.java)
 
 ### 数据库连接池 druid
 
@@ -48,7 +48,7 @@ JWT 有什么问题？目前发现 JWT 无法实现续期，实现续期需要�
 通过工具类 `com.aiocloud.gateway.base.utils.DruidPasswordEncryptorUtil` 进行加密，
 在加载 DataSource 的时候，对用户密码进行解密。
 
-[link: com.aiocloud.gateway.base.utils.DruidPasswordEncryptorUtil](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/base/utils/DruidPasswordEncryptorUtil.java)
+[com.aiocloud.gateway.base.utils.DruidPasswordEncryptorUtil](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/base/utils/DruidPasswordEncryptorUtil.java)
 
 ### 责任链的设计模式
 
@@ -56,4 +56,4 @@ JWT 有什么问题？目前发现 JWT 无法实现续期，实现续期需要�
 进行黑名单、白名单过滤。这里还设计了执行的优先权重，通过 `com.aiocloud.gateway.router.access.FilterOrder`
 这个注解实现了过滤的优先级，黑名单的优先级要高于白名单。
 
-[link: com.aiocloud.gateway.router.access.FilterOrder](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/access/FilterOrder.java)
+[com.aiocloud.gateway.router.access.FilterOrder](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/access/FilterOrder.java)
