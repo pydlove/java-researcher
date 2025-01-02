@@ -1,5 +1,7 @@
 package com.aiocloud.gateway.router.access;
 
+import org.springframework.web.reactive.function.server.ServerRequest;
+
 /**
  *
  * @description: AccessFilter.java
@@ -11,5 +13,5 @@ package com.aiocloud.gateway.router.access;
  */
 public interface AccessFilter {
 
-    boolean doFilter();
+    boolean doFilter(ServerRequest request);
 }

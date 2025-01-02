@@ -43,4 +43,18 @@ public class TestController {
     public String exception() {
         throw new RuntimeException("test");
     }
+
+    @GetMapping("/white")
+    public String white(
+            @RequestParam("name") String name
+    ) {
+        return "hello white: " + name;
+    }
+
+    @GetMapping("/black")
+    public String black(
+            @RequestParam("name") String name
+    ) {
+        return "hello black: " + name;
+    }
 }

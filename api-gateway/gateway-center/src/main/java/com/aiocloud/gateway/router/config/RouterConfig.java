@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.HandlerFunction;
 import org.springframework.web.reactive.function.server.RequestPredicates;
@@ -86,6 +87,8 @@ public class RouterConfig {
 
         // 进行 token 鉴权
         if (BooleanUtil.isFalse(tokenCheck.isTokenValid(request))) {
+
+            log.debug("Received request for path: {} unauthorized, return response code: {}", request.path(), HttpStatus.UNAUTHORIZED);
             return ServerResponse.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -136,4 +139,5 @@ public class RouterConfig {
         // 处理请求转发
         return serverHandler.handleForwardRequest(request);
     }
+
 }

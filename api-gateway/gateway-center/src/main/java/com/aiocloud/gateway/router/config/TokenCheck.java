@@ -1,5 +1,6 @@
 package com.aiocloud.gateway.router.config;
 
+import cn.hutool.core.util.BooleanUtil;
 import com.aiocloud.gateway.base.utils.JwtUtil;
 import com.aiocloud.gateway.constant.SystemConstant;
 import com.aiocloud.gateway.router.access.AccessFilterChain;
@@ -24,9 +25,9 @@ public class TokenCheck {
 
     public boolean isTokenValid(ServerRequest request) {
 
-        // 需要对一些接口进行放行，这里要支持白名单、黑名单、注解的方式
-        if (accessFilterChain.doFilter()) {
-            return true;
+        // 需要对一些接口进行放行，这里要支持白名单、黑名单的方式
+        if (BooleanUtil.isFalse(accessFilterChain.doFilter(request))) {
+            return false;
         }
 
         // 获取 token
