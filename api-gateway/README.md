@@ -56,4 +56,4 @@ JWT 有什么问题？目前发现 JWT 无法实现续期，实现续期需要�
 进行黑名单、白名单过滤。这里还设计了执行的优先权重，通过 `com.aiocloud.gateway.router.access.FilterOrder`
 这个注解实现了过滤的优先级，黑名单的优先级要高于白名单。
 
-[link: com.aiocloud.gateway.router.access.FilterOrder](https://github.com/pydlove/java-researcher/tree/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/access/FilterOrder.java)
+[link: com.aiocloud.gateway.router.access.FilterOrder](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/access/FilterOrder.java)
