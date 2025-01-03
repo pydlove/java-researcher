@@ -10,8 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Date;
+import java.util.*;
 
 import static com.aiocloud.gateway.constant.SystemConstant.BEARER_PREFIX;
 
@@ -30,30 +29,112 @@ public class JwtUtil {
     private static long expirationTime = 1000 * 60 * 30;
     private static long refreshTokenExpirationTime = 1000 * 60 * 60 * 24 * 7;
 
+    private static List<String> audiencesCache;
+
+    private static String audKey = "aud";
+
     static {
+        audiencesCache = new ArrayList<>();
         generateRandomSecretKey();
     }
 
-    public static String generateToken(String username) {
+    /**
+     * 添加 audience 到本地缓存中
+     *
+     * @param: audience
+     * @return: void
+     * @author: panyong
+     * @version: 1.0.0
+     * @createTime: 2025-01-03 11:36
+     * @since 1.0.0
+     */
+    public static void addAudienceCache(String audience) {
+
+        if (BooleanUtil.isFalse(audiencesCache.contains(audience))) {
+            audiencesCache.add(audience);
+        }
+    }
+
+    /**
+     * 创建 token
+     *
+     * @param: username
+     * @param: issuer
+     * @param: audience
+     * @return: java.lang.String
+     * @author: panyong
+     * @version: 1.0.0
+     * @createTime: 2025-01-03 11:22
+     * @since 1.0.0
+     */
+    public static String generateToken(String username, String issuer, String audience) {
+
+        List<String> audiences = new ArrayList<>();
+        audiences.add(audience);
+
+        return generateToken(username, issuer, audiences);
+    }
+
+    /**
+     * 创建 token
+     *
+     * @param: username
+     * @param: issuer
+     * @param: audiences
+     * @return: java.lang.String
+     * @author: panyong
+     * @version: 1.0.0
+     * @createTime: 2025-01-03 11:23
+     * @since 1.0.0
+     */
+    public static String generateToken(String username, String issuer, List<String> audiences) {
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(audKey, audiences);
 
         return BEARER_PREFIX + Jwts.builder()
                 .setSubject(username)
+                .setIssuer(issuer)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(SignatureAlgorithm.HS512, secretKey)
+                .setClaims(claims)
                 .compact();
     }
 
-    public static String generateRefreshToken(String username) {
+    /**
+     * 创建刷新 token
+     *
+     * @param: username
+     * @param: issuer
+     * @param: audience
+     * @return: java.lang.String
+     * @author: panyong
+     * @version: 1.0.0
+     * @createTime: 2025-01-03 11:25
+     * @since 1.0.0
+     */
+    public static String generateRefreshToken(String username, String issuer, String audience) {
 
         return BEARER_PREFIX + Jwts.builder()
                 .setSubject(username)
+                .setIssuer(issuer)
+                .setAudience(audience)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpirationTime))
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }
 
+    /**
+     * 创建 Random Secret Key
+     *
+     * @return: void
+     * @author: panyong
+     * @version: 1.0.0
+     * @createTime: 2025-01-03 11:25
+     * @since 1.0.0
+     */
     public static void generateRandomSecretKey() {
 
         SecureRandom random = new SecureRandom();
@@ -102,6 +183,66 @@ public class JwtUtil {
     public static String extractSubject(String token) {
 
         return extractAllClaims(token).getSubject();
+    }
+
+    /**
+     * 验签
+     *
+     * @param: token
+     * @return: java.lang.Boolean
+     * @author: panyong
+     * @version: 1.0.0
+     * @createTime: 2025-01-02 20:43
+     * @since 1.0.0
+     */
+    public static Boolean verifySignature(String token) {
+
+        Claims claims = extractAllClaims(token);
+
+        return Objects.isNull(claims);
+    }
+
+    public static boolean validateIssuer(String token, String issuer) {
+
+        try {
+
+            Claims claims = extractAllClaims(token);
+            return issuer.equals(claims.getIssuer());
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 校验 audience
+     *
+     * @param: token
+     * @param: audience
+     * @return: boolean
+     * @author: panyong
+     * @version: 1.0.0
+     * @createTime: 2025-01-03 11:26
+     * @since 1.0.0
+     */
+    public static boolean validateAudience(String token) {
+
+        try {
+
+            Claims claims = extractAllClaims(token);
+            Object audClaim = claims.get(audKey);
+            if (audClaim instanceof String) {
+                return audiencesCache.contains(audClaim);
+            } else if (audClaim instanceof List) {
+                List<?> audList = (List<?>) audClaim;
+                return audiencesCache.containsAll(audList);
+            }
+
+            return false;
+
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -155,13 +296,13 @@ public class JwtUtil {
      * @createTime: 2024-12-31 11:02
      * @since 1.0.0
      */
-    public static String refreshToken(String refreshToken) {
+    public static String refreshToken(String refreshToken, String issuer, String audience) {
 
         refreshToken = clearPrefix(refreshToken);
         if (isRefreshTokenValid(refreshToken)) {
             Claims claims = extractAllClaims(refreshToken);
             String username = claims.getSubject();
-            return generateToken(username);
+            return generateToken(username, issuer, audience);
 
         } else {
             throw new RuntimeException("Invalid refresh token: " + refreshToken);
@@ -184,7 +325,7 @@ public class JwtUtil {
 
     public static void main(String[] args) {
 
-        String token = JwtUtil.generateToken("test");
+        String token = JwtUtil.generateToken("test", "test", "test");
         System.out.println("Generated Token: " + token);
 
         Claims claims = JwtUtil.extractAllClaims(token);
@@ -192,5 +333,9 @@ public class JwtUtil {
 
         String username = JwtUtil.extractSubject(token);
         System.out.println(username);
+
+        boolean validateAudience = JwtUtil.validateAudience(token);
+        System.out.println(validateAudience);
     }
+
 }

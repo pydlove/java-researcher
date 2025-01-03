@@ -9,9 +9,11 @@ import com.aiocloud.gateway.center.auth.service.AuthService;
 import com.aiocloud.gateway.base.utils.JwtUtil;
 import com.aiocloud.gateway.base.utils.PasswordUtil;
 import com.aiocloud.gateway.center.auth.vo.AuthVO;
+import com.aiocloud.gateway.config.SystemJwtConfig;
 import com.aiocloud.gateway.constant.SystemConstant;
 import com.aiocloud.gateway.mysql.mapper.LoginUserMapper;
 import com.aiocloud.gateway.mysql.po.LoginUserPO;
+import com.aiocloud.gateway.router.config.TokenCheck;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,12 +33,14 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     private final LoginUserMapper loginUserMapper;
+    private final SystemJwtConfig systemJwtConfig;
 
     @Override
     public CommonResponse<AuthVO> auth(AuthDTO authDTO) {
 
         String username = authDTO.getUsername();
         String password = authDTO.getPassword();
+        String audience = authDTO.getAudience();
 
         LoginUserPO user = loginUserMapper.findByUsername(username);
         if (user == null) {
@@ -48,8 +52,11 @@ public class AuthServiceImpl implements AuthService {
             return new CommonResponse(ErrorCode.USER_OR_PASSWORD_ERROR, "用户名或密码错误");
         }
 
-         String accessToken  = JwtUtil.generateToken(username);
-         String refreshToken = JwtUtil.generateRefreshToken(username);
+        String accessToken = JwtUtil.generateToken(username, systemJwtConfig.getIssuer(), audience);
+        String refreshToken = JwtUtil.generateRefreshToken(username, systemJwtConfig.getIssuer(), audience);
+
+        // audience 缓存管理
+        JwtUtil.addAudienceCache(audience);
 
         return new CommonResponse(new AuthVO(accessToken, refreshToken));
     }
@@ -61,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
         String refreshToken = httpServletRequest.getHeader(SystemConstant.X_REFRESH_TOKEN);
 
         if (JwtUtil.isRefreshTokenValid(refreshToken)) {
-            String accessToken = JwtUtil.refreshToken(refreshToken);
+            String accessToken = JwtUtil.refreshToken(refreshToken, systemJwtConfig.getIssuer(), systemJwtConfig.getAudience());
             return new CommonResponse<>(new AuthVO(accessToken, refreshToken));
         }
 

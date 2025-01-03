@@ -17,4 +17,9 @@ public class AuthDTO {
     private String username;
 
     private String password;
+
+    /**
+     * 受众信息（用于 token 校验）
+     */
+    private String audience;
 }

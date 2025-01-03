@@ -57,3 +57,10 @@ JWT 有什么问题？目前发现 JWT 无法实现续期，实现续期需要�
 这个注解实现了过滤的优先级，黑名单的优先级要高于白名单。
 
 [com.aiocloud.gateway.router.access.FilterOrder](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/access/FilterOrder.java)
+
+### 如何实现系统缓存？
+
+写到这里，我发现系统里有很多的地方需要缓存，比如路由、服务、黑名单、白名单、用户信息等。内存的选型方案我们有很多种，
+大体可以分成两类，一类是本地缓存，一类是异地缓存。本地缓存大家可能用过很多，例如 map、list、set，还有框架级别的缓存
+Caffeine 等，异地缓存就很多了，例如 redis、memcached 等，异地主要是用来实现分布式使用。  
+这里我们出于学习的目的，我们玩个骚操作，我们基于 Caffine 实现一个异地缓存。
