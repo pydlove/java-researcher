@@ -111,12 +111,11 @@ LV 协议。
 LV (Length Value) 协议，它有 4 个字节的 length 和 value，我们通过 netty 的 ByteBuf 来实现。
 
 消息对象：
-
-- [`com.aiocloud.gateway.cache.client.protocol.Message`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/Message.java)  
-  LV 协议编码类：
-- [`com.aiocloud.gateway.cache.client.protocol.MessageEncoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/MessageEncoder.java)  
-  LV 协议解码类：
-- [`com.aiocloud.gateway.cache.client.protocol.MessageDecoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/MessageDecoder.java)
+[`com.aiocloud.gateway.cache.client.protocol.Message`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/Message.java)  
+LV 协议编码类：
+[`com.aiocloud.gateway.cache.client.protocol.MessageEncoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/MessageEncoder.java)  
+LV 协议解码类：
+[`com.aiocloud.gateway.cache.client.protocol.MessageDecoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/MessageDecoder.java)
 
 ### 客户端如何设置和读取缓存？
 
