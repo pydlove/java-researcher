@@ -110,9 +110,7 @@ LV (Length Value) 协议，它有 4 个字节的 length 和 value，我们通过
 但是有一个问题：我们每次设置缓存都要新创建一个客户端吗？创建的过程是需要连接服务端的，这个连接过程是缓慢，如果每次都新建一个，那么这个性能太差了，
 我们是无法接收的，那么现在该怎么办呢？  
 针对这种情况，我们大部分的设计都是使用连接池，用于复用这个连接。那么我们该如何实现这个连接池呢？
-1. 使用 commons-pool 实现连接池；
-
-核心类：
+1. 使用 commons-pool 实现连接池； 核心类：
 - [`com.aiocloud.gateway.cache.client.pool.CacheClientPool`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/pool/CacheClientPool.java)
 
 2. 当然大家也可以自己去实现一个针对这场景的资源池，原理也很简单，实现两个方面：
