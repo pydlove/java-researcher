@@ -19,6 +19,7 @@
         <module>gateway-core</module>
         <module>gateway-center</module>
         <module>dao-mysql</module>
+        <module>gateway-cache</module>
     </modules>
 
     <properties>
@@ -29,16 +30,19 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>5.8.21</version>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.34</version>
             <scope>provided</scope>
         </dependency>
+
     </dependencies>
 </project>
