@@ -87,7 +87,7 @@ Caffeine 等，异地缓存就很多了，例如 redis、memcached 等，异地�
 因为分布式的缓存它肯定需要设置很多配置参数，我们需要构建一个统一的配置参数读取的功能，这个功能写在这个包下面 `com.aiocloud.gateway.cache.conf`，
 通过注解 `@Prop` 和 `ConfigLoader` 实现，我们可用通过 `SystemProperties.serverPort` 的方式读取参数，`@Prop` 设置参数。
 
-三个核心类
+三个核心类  
 - [`com.aiocloud.gateway.cache.conf.ConfigLoader`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/conf/ConfigLoader.java)
 - [`com.aiocloud.gateway.cache.conf.Prop`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/conf/Prop.java)
 - [`com.aiocloud.gateway.cache.conf.SystemProperties`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/conf/SystemProperties.java)
@@ -97,11 +97,11 @@ Caffeine 等，异地缓存就很多了，例如 redis、memcached 等，异地�
 我们通过 netty 实现了客户端和服务端，我们可以通过客户端远程进行设置缓存和读取缓存，netty 客户端和服务端中间的消息交互使用的是 LV 协议。
 LV (Length Value) 协议，它有 4 个字节的 length 和 value，我们通过 netty 的 ByteBuf 来实现。
 
-消息对象：
+消息对象： 
 - [`com.aiocloud.gateway.cache.client.protocol.Message`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/Message.java)
-  LV 协议编码类：
+  LV 协议编码类： 
 - [`com.aiocloud.gateway.cache.client.protocol.MessageEncoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/MessageEncoder.java)
-  LV 协议解码类：
+  LV 协议解码类： 
 - [`com.aiocloud.gateway.cache.client.protocol.MessageDecoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/MessageDecoder.java)
 
 ### 客户端如何设置和读取缓存？
