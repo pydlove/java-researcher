@@ -88,9 +88,9 @@ Caffeine 等，异地缓存就很多了，例如 redis、memcached 等，异地�
 通过注解 `@Prop` 和 `ConfigLoader` 实现，我们可用通过 `SystemProperties.serverPort` 的方式读取参数，`@Prop` 设置参数。
 
 三个核心类
-- [`com.aiocloud.gateway.cache.conf.ConfigLoader`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/cache/conf/ConfigLoader.java)
-- [`com.aiocloud.gateway.cache.conf.Prop`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/cache/conf/Prop.java)
-- [`com.aiocloud.gateway.cache.conf.SystemProperties`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/cache/conf/SystemProperties.java)
+- [`com.aiocloud.gateway.cache.conf.ConfigLoader`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/conf/ConfigLoader.java)
+- [`com.aiocloud.gateway.cache.conf.Prop`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/conf/Prop.java)
+- [`com.aiocloud.gateway.cache.conf.SystemProperties`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/conf/SystemProperties.java)
 
 ### 什么是 LV 协议？
 
@@ -98,22 +98,22 @@ Caffeine 等，异地缓存就很多了，例如 redis、memcached 等，异地�
 LV (Length Value) 协议，它有 4 个字节的 length 和 value，我们通过 netty 的 ByteBuf 来实现。
 
 消息对象：
-- [`com.aiocloud.gateway.cache.client.protocol.Message`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/cache/client/protocol/Message.java)
+- [`com.aiocloud.gateway.cache.client.protocol.Message`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/Message.java)
   LV 协议编码类：
-- [`com.aiocloud.gateway.cache.client.protocol.MessageEncoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/cache/client/protocol/MessageEncoder.java)
+- [`com.aiocloud.gateway.cache.client.protocol.MessageEncoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/MessageEncoder.java)
   LV 协议解码类：
-- [`com.aiocloud.gateway.cache.client.protocol.MessageDecoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/cache/client/protocol/MessageDecoder.java)
+- [`com.aiocloud.gateway.cache.client.protocol.MessageDecoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/MessageDecoder.java)
 
 ### 客户端如何设置和读取缓存？
 
-写到这里，我们大致实现了客户端去连接服务端并且通过调用 [`com.aiocloud.gateway.cache.client.CacheClient.setCache`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/cache/client/CacheClient.java) 方法可以设置成功缓存，
+写到这里，我们大致实现了客户端去连接服务端并且通过调用 [`com.aiocloud.gateway.cache.client.CacheClient.setCache`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/CacheClient.java) 方法可以设置成功缓存，
 但是有一个问题：我们每次设置缓存都要新创建一个客户端吗？创建的过程是需要连接服务端的，这个连接过程是缓慢，如果每次都新建一个，那么这个性能太差了，
 我们是无法接收的，那么现在该怎么办呢？  
 针对这种情况，我们大部分的设计都是使用连接池，用于复用这个连接。那么我们该如何实现这个连接池呢？
 1. 使用 commons-pool 实现连接池；
 
 核心类：
-- [`com.aiocloud.gateway.cache.client.pool.CacheClientPool`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/cache/client/pool/CacheClientPool.java)
+- [`com.aiocloud.gateway.cache.client.pool.CacheClientPool`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/pool/CacheClientPool.java)
 
 2. 当然大家也可以自己去实现一个针对这场景的资源池，原理也很简单，实现两个方面：
    对象池化和资源管理（对象的创建、验证和销毁等）
@@ -126,6 +126,6 @@ ServerStartApplication 这个是入口类，CacheServerApplication 这个是服�
 的一些要做的事情。
 
 核心类：
-- [`com.aiocloud.gateway.cache.server.CacheBootApplication`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/cache/server/CacheBootApplication.java)
-- [`com.aiocloud.gateway.cache.server.CacheServerApplication`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/cache/server/CacheServerApplication.java)
-- [`com.aiocloud.gateway.cache.server.CacheServer`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/cache/server/CacheServer.java)
+- [`com.aiocloud.gateway.cache.server.CacheBootApplication`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/server/CacheBootApplication.java)
+- [`com.aiocloud.gateway.cache.server.CacheServerApplication`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/server/CacheServerApplication.java)
+- [`com.aiocloud.gateway.cache.server.CacheServer`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/server/CacheServer.java)
