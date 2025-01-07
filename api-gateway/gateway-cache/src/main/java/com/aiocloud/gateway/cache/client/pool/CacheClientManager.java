@@ -1,6 +1,7 @@
 package com.aiocloud.gateway.cache.client.pool;
 
 import com.aiocloud.gateway.cache.conf.SystemProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -46,7 +47,33 @@ public class CacheClientManager {
             cacheClientPool.borrowObject().setCache(key, value);
 
         } catch (Exception ex) {
-            log.error("set cache error, key: {}, cause by:", key, ex);
+            log.error("set cache error, key: {}, caused by:", key, ex);
         }
+    }
+
+    /**
+     * 获取缓存
+     *
+     * @param: key
+     * @return: T
+     * @author: panyong
+     * @version: 1.0.0
+     * @createTime: 2025-01-07 14:29
+     * @since 1.0.0
+     */
+    public <T> T getCache(String key) {
+
+        try {
+
+            Object cache = cacheClientPool.borrowObject().getCache(key);
+            if (cache != null) {
+                return (T) cache;
+            }
+
+        } catch (Exception ex) {
+            log.error("get cache error, key: {}, caused by:", key, ex);
+        }
+
+        return null;
     }
 }

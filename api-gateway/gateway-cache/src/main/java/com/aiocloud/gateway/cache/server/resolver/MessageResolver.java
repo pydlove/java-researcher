@@ -1,6 +1,6 @@
-package com.aiocloud.gateway.cache.client.resolver;
+package com.aiocloud.gateway.cache.server.resolver;
 
-import com.aiocloud.gateway.cache.client.protocol.Message;
+import com.aiocloud.gateway.cache.server.protocol.Message;
 
 /**
  *

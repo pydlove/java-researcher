@@ -1,9 +1,7 @@
 package com.aiocloud.gateway.cache.client;
 
-import com.aiocloud.gateway.cache.client.pool.CacheClientPool;
-import com.aiocloud.gateway.cache.client.protocol.MessageDecoder;
-import com.aiocloud.gateway.cache.client.protocol.MessageEncoder;
-import com.aiocloud.gateway.cache.conf.SystemProperties;
+import com.aiocloud.gateway.cache.server.protocol.MessageDecoder;
+import com.aiocloud.gateway.cache.server.protocol.MessageEncoder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -13,8 +11,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,6 +86,17 @@ public class CacheClient {
         }
     }
 
+    public Object getCache(String key) {
+
+        if (channelFuture != null && channelFuture.channel().isActive()) {
+            return this.cacheClientHandler.sendAndGetMessage(key);
+        } else {
+            log.error("Channel is not active, cannot send message.");
+        }
+
+        return null;
+    }
+
     public void close() {
         if (channelFuture != null) {
             channelFuture.channel().close();
@@ -103,18 +110,4 @@ public class CacheClient {
         return channelFuture != null && channelFuture.channel().isActive();
     }
 
-    public static void main(String[] args) {
-
-        CacheClientPool cacheClientPool = new CacheClientPool(SystemProperties.serverHost, SystemProperties.serverPort);
-
-        try {
-
-            CacheClient cacheClient = cacheClientPool.borrowObject();
-            cacheClient.setCache("test", "test");
-        } catch (Exception ex) {
-            log.error(" error, cause by:", ex);
-        } finally {
-            cacheClientPool.close();
-        }
-    }
 }

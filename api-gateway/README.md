@@ -3,18 +3,23 @@
 ## 目录
 
 - [功能](#功能)
+- [项目结构](#项目结构)
 - [应用的技术](#应用的技术)
     - [JWT 认证](#jwt-认证)
-    - [短生命周期令牌 + 刷新令牌如何实现？](#短生命周期令牌-刷新令牌如何实现)
-    - [如何进行 token 的验证？](#如何进行-token-的验证)
+        - [短生命周期令牌 + 刷新令牌如何实现？](#短生命周期令牌-刷新令牌如何实现)
+        - [如何进行 token 的验证？](#如何进行-token-的验证)
     - [AntPathMatcher 实现路径的匹配判断](#antpathmatcher-实现路径的匹配判断)
     - [数据库连接池 Druid](#数据库连接池-druid)
     - [责任链的设计模式](#责任链的设计模式)
-    - [如何实现系统缓存？](#如何实现系统缓存)
+    - [系统缓存的实现](#系统缓存的实现)
+        - [缓存的数据存储在哪里？](#缓存的数据存储在哪里)
+        - [如何设置和读取缓存？](#如何设置和读取缓存)
     - [配置文件信息读取](#配置文件信息读取)
     - [LV 协议](#lv-协议)
-    - [客户端如何设置和读取缓存？](#客户端如何设置和读取缓存)
-    - [服务的如何启动？](#服务的如何启动)
+    - [客户端如何连接缓存服务端？](#客户端如何连接缓存服务端)
+    - [缓存服务端如何启动？](#缓存服务端如何启动)
+    - [缓存客户端如何设置和读取缓存？](#缓存客户端如何设置和读取缓存)
+    - [并发情况的 message id 如何生成？](#并发情况的-message-id-如何生成)
 
 ---
 
@@ -24,6 +29,16 @@
 2. 服务注册
 3. 服务发现
 4. 认证与授权
+
+---
+
+## 项目结构
+
+api-gateway   
+├── dao-mysql  持久层操作  
+├── gateway-cache  缓存   
+├── gateway-center 注册中心  
+├── gateway-core 网关核心包  
 
 ---
 
@@ -111,13 +126,13 @@ LV 协议。
 LV (Length Value) 协议，它有 4 个字节的 length 和 value，我们通过 netty 的 ByteBuf 来实现。
 
 消息对象：
-[`com.aiocloud.gateway.cache.client.protocol.Message`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/Message.java)  
+[`com.aiocloud.gateway.cache.server.protocol.Message`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/server/protocol/Message.java)  
 LV 协议编码类：
-[`com.aiocloud.gateway.cache.client.protocol.MessageEncoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/MessageEncoder.java)  
+[`com.aiocloud.gateway.cache.server.protocol.MessageEncoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/server/protocol/MessageEncoder.java)  
 LV 协议解码类：
-[`com.aiocloud.gateway.cache.client.protocol.MessageDecoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/protocol/MessageDecoder.java)
+[`com.aiocloud.gateway.cache.server.protocol.MessageDecoder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/server/protocol/MessageDecoder.java)
 
-### 客户端如何设置和读取缓存？
+### 客户端如何连接缓存服务端？这个连接如何复用？
 
 写到这里，我们大致实现了客户端去连接服务端并且通过调用 [`com.aiocloud.gateway.cache.client.CacheClient.setCache`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/client/CacheClient.java)
 方法可以设置成功缓存，
@@ -132,15 +147,33 @@ LV 协议解码类：
 2. 当然大家也可以自己去实现一个针对这场景的资源池，原理也很简单，实现两个方面：
    对象池化和资源管理（对象的创建、验证和销毁等）
 
-### 服务的如何启动？
+### 缓存服务端的如何启动？
 
 服务端可以使用 main 方法启动，我们这里可以做个有意思的东西，我们仿造 SpringBoot 来实现启动
 缓存服务端的启动，我们也写一个注解 `CacheBootApplication`，我们通过这个注解来启动服务端，这样我们只需要在启动类上加上这个注解，
 ServerStartApplication 这个是入口类，CacheServerApplication 这个是服务器启动的编排的类，这里面我们实现启动前、启动以及启动后
-的一些要做的事情。
+的一些要做的事情。最后通过 `com.aiocloud.gateway.cache.server.ServerStartApplication` 就可以启动服务端。
 
 核心类：
 
 - [`com.aiocloud.gateway.cache.server.CacheBootApplication`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/server/CacheBootApplication.java)
 - [`com.aiocloud.gateway.cache.server.CacheServerApplication`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/server/CacheServerApplication.java)
 - [`com.aiocloud.gateway.cache.server.CacheServer`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/server/CacheServer.java)
+
+### 缓存客户端如何如何设置缓存？读取缓存？
+
+这里可以参考单元测试的代码 `com.aiocloud.gateway.cache.client.pool.CacheClientManagerTest` ，`com.aiocloud.gateway.cache.client.pool.CacheClientManager`
+ 是一个单例的类，通过它就可以设置缓存了。其中的原理就是：CacheClientManager 被 new 的时候会去初始化一个连接池，这个池子用于连接缓存服务端，
+然后调用 setCache 方法时，客户端会发送一条消息给服务端，这条消息的类型是 REQUEST_SET，会被这个类去处理 `com.aiocloud.gateway.cache.server.resolver.RequestSetMessageResolver`
+，这个类里会调用缓存的管理类 `com.aiocloud.gateway.cache.core.CacheManager` 进行存储缓存。  
+同理读取缓存就是发送 REQUEST_GET 的消息，然后被 `com.aiocloud.gateway.cache.server.resolver.RequestGetMessageResolver` 处理，有所不同的是，
+读取缓存时，会返回一个结果，这个结果是缓存的值，而客户端需要等待结果，这个过程是阻塞，通过的是 CompletableFuture<Message> completableFuture 的 get 方法实现，
+这里有个细节的是 completableFuture 是维护在 ConcurrentMap 里面的，通过 key 来获取对应的 completableFuture，这个 key 是 message id，id 是通过
+雪花算法实现的。
+
+### 并发情况的 message id 如何生成？
+
+这个简单点就用 AtomicLong 来生成，但是考虑以后分布式等情况，我们可以引入分布式 ID 生成器，比如：雪花算法。
+我这里就用雪花算法来生成 message id。雪花算法使用的是工具包 cn.ipokerface/snowflake-id-generator，工具类是 `com.aiocloud.gateway.cache.base.utils.SnowflakeIdGeneratorUtil`。
+
+

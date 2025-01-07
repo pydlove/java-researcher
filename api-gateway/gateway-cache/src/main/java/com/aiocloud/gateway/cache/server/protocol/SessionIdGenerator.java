@@ -1,4 +1,4 @@
-package com.aiocloud.gateway.cache.client.protocol;
+package com.aiocloud.gateway.cache.server.protocol;
 
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package com.aiocloud.gateway.cache.client.protocol;
+package com.aiocloud.gateway.cache.server.protocol;
 
 /**
  *
@@ -11,8 +11,8 @@ package com.aiocloud.gateway.cache.client.protocol;
  */
 public enum MessageTypeEnum {
 
-    REQUEST((byte) 1),
-    RESPONSE((byte) 2),
+    REQUEST_SET((byte) 1),
+    REQUEST_GET((byte) 2),
     PING((byte) 3),
     PONG((byte) 4),
     EMPTY((byte) 5)

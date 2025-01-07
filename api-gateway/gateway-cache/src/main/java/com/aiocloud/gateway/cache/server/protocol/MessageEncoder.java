@@ -1,6 +1,5 @@
-package com.aiocloud.gateway.cache.client.protocol;
+package com.aiocloud.gateway.cache.server.protocol;
 
-import cn.hutool.core.util.StrUtil;
 import com.aiocloud.gateway.cache.base.constants.SystemConstant;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -24,6 +23,10 @@ public class MessageEncoder extends MessageToByteEncoder<Message> {
 
         // 这里会判断消息类型是不是 EMPTY 类型，如果是 EMPTY 类型，则表示当前消息不需要写入到管道中
         if (message.getMessageType() != MessageTypeEnum.EMPTY) {
+
+            // 写入 id
+            Long id = Optional.ofNullable(message.getId()).orElse(0L);
+            out.writeLong(id);
 
             // 写入当前的魔数
             out.writeInt(SystemConstant.MAGIC_NUMBER);

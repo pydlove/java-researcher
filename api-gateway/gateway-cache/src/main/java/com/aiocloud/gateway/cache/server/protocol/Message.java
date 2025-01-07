@@ -1,4 +1,4 @@
-package com.aiocloud.gateway.cache.client.protocol;
+package com.aiocloud.gateway.cache.server.protocol;
 
 import lombok.Data;
 
@@ -18,6 +18,7 @@ import java.util.Map;
 @Data
 public class Message {
 
+    private long id;
     private int magicNumber;
     private byte mainVersion;
     private byte subVersion;

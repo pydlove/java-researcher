@@ -1,8 +1,7 @@
 package com.aiocloud.gateway.cache.server;
 
-import com.aiocloud.gateway.cache.client.protocol.MessageDecoder;
-import com.aiocloud.gateway.cache.client.protocol.MessageEncoder;
-import com.aiocloud.gateway.cache.conf.SystemProperties;
+import com.aiocloud.gateway.cache.server.protocol.MessageDecoder;
+import com.aiocloud.gateway.cache.server.protocol.MessageEncoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -13,8 +12,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 
 /**
  * @description: CacheServer.java

@@ -1,13 +1,14 @@
 package com.aiocloud.gateway.cache.server;
 
-import com.aiocloud.gateway.cache.client.protocol.*;
-import com.aiocloud.gateway.cache.client.resolver.MessageResolver;
-import com.aiocloud.gateway.cache.client.resolver.MessageResolverFactory;
-import com.aiocloud.gateway.cache.client.resolver.RequestMessageResolver;
-import com.aiocloud.gateway.cache.client.resolver.ResponseMessageResolver;
+import com.aiocloud.gateway.cache.server.protocol.Message;
+import com.aiocloud.gateway.cache.server.resolver.MessageResolver;
+import com.aiocloud.gateway.cache.server.resolver.MessageResolverFactory;
+import com.aiocloud.gateway.cache.server.resolver.RequestGetMessageResolver;
+import com.aiocloud.gateway.cache.server.resolver.RequestSetMessageResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -18,6 +19,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
  * @version: 1.0.0 
  * @createTime: 2025-01-03 17:44 
  */
+@Slf4j
 public class CacheServerHandler extends SimpleChannelInboundHandler<Message> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -42,14 +44,18 @@ public class CacheServerHandler extends SimpleChannelInboundHandler<Message> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
+
+        log.error("Encountered some errors, caused by:", cause);
         ctx.close();
     }
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
 
-        // 注册 request 消息处理器
-        resolverFactory.registerResolver(new RequestMessageResolver());
+        // 注册获取缓存的消息处理器
+        resolverFactory.registerResolver(new RequestGetMessageResolver());
+
+        // 注册设置缓存的消息处理器
+        resolverFactory.registerResolver(new RequestSetMessageResolver());
     }
 }

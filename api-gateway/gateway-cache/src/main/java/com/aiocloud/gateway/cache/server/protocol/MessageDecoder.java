@@ -1,6 +1,5 @@
-package com.aiocloud.gateway.cache.client.protocol;
+package com.aiocloud.gateway.cache.server.protocol;
 
-import com.aiocloud.gateway.cache.base.constants.SystemConstant;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -22,6 +21,9 @@ public class MessageDecoder extends ByteToMessageDecoder {
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
 
         Message message = new Message();
+
+        // 读取 id
+        message.setId(in.readLong());
 
         // 读取魔数
         message.setMagicNumber(in.readInt());
