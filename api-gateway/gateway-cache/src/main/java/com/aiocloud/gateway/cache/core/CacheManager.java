@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
 public class CacheManager {
 
     private static final Cache<String, Object> cache = Caffeine.newBuilder()
-            .expireAfterWrite(10, TimeUnit.MINUTES)
-            .expireAfterAccess(10, TimeUnit.MINUTES)
-            .maximumSize(1000)
+            .expireAfterWrite(24, TimeUnit.HOURS)
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .maximumSize(10000)
             .removalListener((key, value, cause) -> {
                 log.info("key: {} was removed, cause: {}", key, cause);
             })
