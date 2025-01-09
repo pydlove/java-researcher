@@ -2,11 +2,13 @@
 
 ## 目录
 
+- [写在前面](#写在前面)
 - [功能](#功能)
 - [项目结构](#项目结构)
 - [应用的技术](#应用的技术)
   - [路由转发模块](#路由转发模块)
   - [服务注册模块](#服务注册模块)
+      - [如何实现服务注册的功能？](#如何实现服务注册的功能)
   - [服务发现模块](#服务发现模块)
   - [认证与授权模块](#认证与授权模块)
       - [JWT 认证](#jwt-认证)
@@ -30,6 +32,10 @@
   - [聚合API模块](#聚合API模块)
   - [请求/响应转换模块](#请求响应转换模块)
   - [安全策略实施模块](#安全策略实施模块)
+
+---
+
+## 写在前面
 
 ---
 
@@ -64,9 +70,55 @@ api-gateway
 
 ### 路由转发模块
 
+#### 服务转发时如何实现负载均衡的？
+
+首先服务转发功能我是在 `com.aiocloud.gateway.router.config.RouterConfig` 这个类里面实现的，这个是入口类，用于对
+所有接口的请求进行转发的，通过 `forwardRequest` 方法进行转发，在 `com.aiocloud.gateway.router.server.HttpUrlSelector.getTargetUrl` 
+这个方法里面获取 `ServiceInstance` 对象，在 `com.aiocloud.gateway.center.system.ServiceCenter.getServiceInfo` 这个方法里面调用负载
+均衡策略，负载均衡的工厂类是 `LoadBalanceFactory` ，在这个类里面实现负载均衡的策略，使用的是策略模式，负载均衡的接口是 `com.aiocloud.gateway.center.system.loadbalance.ServerLoadBalance`，
+
+通过下面配置可以设置负载均衡的策略：
+```properties
+service.load.balance.strategy=polling
+```
+
 ---
 
 ### 服务注册模块
+
+#### 如何实现服务注册的功能？
+
+服务注册是在 gateway-core 这个模块里实现的，核心类是：`com.aiocloud.gateway.core.registry.ServiceRegistryClient` 类实现的，
+大致的原理是：使用者（如何 test-service，这个项目是跟 api-gateway 同一个层级的）只需要配置下几个配置（配置参数在下面），`ServiceRegistryClient`
+会自动将使用者的服务注册到注册中心，当然这里是支持负载均衡的，可以一个服务注册提供多个服务地址，这个我接下来一点点的举例讲解。  
+
+配置参数：
+```properties
+## 服务名（使用者的名称，这个会在注册中心唯一） 
+service.registry.service-name=test-service
+
+## 服务的地址（使用者的服务地址）
+service.registry.service-url=http://localhost:8081
+
+## 注册中心的地址
+service.registry.registry-url=http://localhost:8080
+```
+如 test-service 配置了这三个参数，并且引入了 pom 依赖（如下），Springboot 启动成功后，会触发 `ServiceRegistryClient.registerService()` 方法，
+这个方法是被 `@EventListener(ApplicationReadyEvent.class)` 注解修饰。
+
+```xml
+<dependency>
+    <groupId>org.aiocloud</groupId>
+    <artifactId>gateway-core</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+至于 gateway-core 怎么做到对集成者也就是使用者无状态的呢（配置参数除外，这个是必须耦合的）？通过在 `src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+里面配置 `com.aiocloud.gateway.core.config.ServiceRegistryAutoConfiguration`, 这个类会自动被 Springboot 扫描到，这个类里面定义了`@ComponentScan(basePackages = "com.aiocloud.gateway.core")`,
+因此 `com.aiocloud.gateway.core` 包下会被 Spring 扫描到。  
+
+至于为什么用 `org.springframework.boot.autoconfigure.AutoConfiguration.imports` 实现，是因为 SpringBoot 3.0 已经不用 `spring.factories` 这种方式
+引入配置类了。
 
 ---
 

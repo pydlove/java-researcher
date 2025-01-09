@@ -39,12 +39,8 @@ public class RouterRegisterServiceImpl implements RouterRegisterService {
 
         try {
 
-            // 自己无需注册
-//            if (BooleanUtil.isFalse(Objects.equals(serviceInstance.getName(), gatewayServiceName))) {
-
-                // 这里暂时使用缓存进行存储注册服务信息，后续可以改为数据库存储
-                serviceCenter.registerService(serviceInstance);
-//            }
+            // 这里暂时使用缓存进行存储注册服务信息，后续可以改为数据库存储
+            serviceCenter.registerService(serviceInstance);
 
             return new CommonResponse(SystemConstant.RESPONSE_SUCCESS);
 
