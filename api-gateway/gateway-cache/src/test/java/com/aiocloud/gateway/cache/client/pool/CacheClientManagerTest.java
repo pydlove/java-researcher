@@ -49,7 +49,7 @@ public class CacheClientManagerTest {
         String key = "testKey";
         String expectedValue = "testValue";
 
-        String actualValue = cacheClientManager.getCache(key);
+        String actualValue = String.valueOf(cacheClientManager.getCache(key));
         System.out.printf("actualValue: %s", actualValue);
 
         assertEquals(expectedValue, actualValue);
@@ -60,7 +60,7 @@ public class CacheClientManagerTest {
         String key = "testKey";
 
         when(cacheClientManager.getCache(key)).thenReturn(null);
-        String actualValue = cacheClientManager.getCache(key);
+        String actualValue = String.valueOf(cacheClientManager.getCache(key));
 
         assertNull(actualValue);
     }
@@ -70,7 +70,7 @@ public class CacheClientManagerTest {
         String key = "testKey";
 
         doThrow(new Exception("Test Exception")).when(cacheClientManager).getCache(key);
-        String actualValue = cacheClientManager.getCache(key);
+        String actualValue = String.valueOf(cacheClientManager.getCache(key));
 
         assertNull(actualValue);
     }

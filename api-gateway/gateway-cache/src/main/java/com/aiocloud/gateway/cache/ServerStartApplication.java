@@ -1,4 +1,7 @@
-package com.aiocloud.gateway.cache.server;
+package com.aiocloud.gateway.cache;
+
+import com.aiocloud.gateway.cache.server.CacheBootApplication;
+import com.aiocloud.gateway.cache.server.CacheServerApplication;
 
 /**
  *

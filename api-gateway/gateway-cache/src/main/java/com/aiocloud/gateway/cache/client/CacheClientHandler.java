@@ -57,17 +57,16 @@ public class CacheClientHandler extends SimpleChannelInboundHandler<Message> {
     protected void channelRead0(ChannelHandlerContext ctx, Message message) throws Exception {
 
         String key = null;
-        String body = null;
+        CacheMessage cacheMessage = null;
         String responseMessage = null;
         Long id = message.getId();
         MessageTypeEnum messageType;
 
         try {
 
-            body = message.getBody();
-            if (StrUtil.isNotEmpty(body)) {
+            cacheMessage = message.getBody();
+            if (Objects.nonNull(cacheMessage)) {
 
-                CacheMessage cacheMessage = JSONObject.parseObject(body, CacheMessage.class);
                 key = cacheMessage.getKey();
                 responseMessage = cacheMessage.getResponseMessage();
                 messageType = message.getMessageType();
@@ -113,7 +112,7 @@ public class CacheClientHandler extends SimpleChannelInboundHandler<Message> {
 
         Message message = new Message();
         message.setMessageType(messageType);
-        message.setBody(JSONObject.toJSONString(cacheMessage));
+        message.setBody(cacheMessage);
         message.setId(SnowflakeIdGeneratorUtil.generateId());
 
         return message;
@@ -218,10 +217,9 @@ public class CacheClientHandler extends SimpleChannelInboundHandler<Message> {
 
         Message returnMessage = future.get();
 
-        String body = returnMessage.getBody();
-        if (StrUtil.isNotEmpty(body)) {
+        CacheMessage cacheMessage = returnMessage.getBody();
+        if (Objects.nonNull(cacheMessage)) {
 
-            CacheMessage cacheMessage = JSONObject.parseObject(body, CacheMessage.class);
             String key = cacheMessage.getKey();
             String responseMessage = cacheMessage.getResponseMessage();
 

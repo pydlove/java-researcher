@@ -20,6 +20,7 @@
     - [缓存服务端如何启动？](#缓存服务端如何启动)
     - [缓存客户端如何设置和读取缓存？](#缓存客户端如何设置和读取缓存)
     - [并发情况的 message id 如何生成？](#并发情况的-message-id-如何生成)
+    - [缓存的序列化和反序列化过程中，字符集导致反序列化失败？](#缓存的序列化和反序列化过程中，字符集导致反序列化失败)
 
 ---
 
@@ -29,6 +30,12 @@
 2. 服务注册
 3. 服务发现
 4. 认证与授权
+5. 协议转换
+6. 流量控制
+7. 日志记录和监控
+8. 聚合API
+9. 请求/响应转
+10. 安全策略实施
 
 ---
 
@@ -60,7 +67,7 @@ JWT 有什么问题？目前发现 JWT 无法实现续期，实现续期需要�
 
 #### 如何进行 token 的验证？
 
-[`com.aiocloud.gateway.router.config.TokenCheck`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/config/TokenCheck.java)
+[`com.aiocloud.gateway.router.config.AuthenticationCheck`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/config/AuthenticationCheck.java)
 类主要负责 token 的校验，主要校验步骤如下：
 
 1. 对一些接口进行放行，支持白名单、黑名单
@@ -152,7 +159,7 @@ LV 协议解码类：
 服务端可以使用 main 方法启动，我们这里可以做个有意思的东西，我们仿造 SpringBoot 来实现启动
 缓存服务端的启动，我们也写一个注解 `CacheBootApplication`，我们通过这个注解来启动服务端，这样我们只需要在启动类上加上这个注解，
 ServerStartApplication 这个是入口类，CacheServerApplication 这个是服务器启动的编排的类，这里面我们实现启动前、启动以及启动后
-的一些要做的事情。最后通过 `com.aiocloud.gateway.cache.server.ServerStartApplication` 就可以启动服务端。
+的一些要做的事情。最后通过 `com.aiocloud.gateway.cache.ServerStartApplication` 就可以启动服务端。
 
 核心类：
 
@@ -176,4 +183,12 @@ ServerStartApplication 这个是入口类，CacheServerApplication 这个是服�
 这个简单点就用 AtomicLong 来生成，但是考虑以后分布式等情况，我们可以引入分布式 ID 生成器，比如：雪花算法。
 我这里就用雪花算法来生成 message id。雪花算法使用的是工具包 cn.ipokerface/snowflake-id-generator，工具类是 `com.aiocloud.gateway.cache.base.utils.SnowflakeIdGeneratorUtil`。
 
+### 缓存的序列化和反序列化过程中，字符集导致反序列化失败？
+
+这里的原因是因为字符集影响了，byte[] serializedBytes = serializeObject(originalMessage) 序列化成数组，反序列化时使用 byte[] bytes = new String(serializedBytes);deserializeObject(bytes, CacheMessage.class);
+然后就会报错, 原因是 UTF-8 是多字节编码，需要用多个字节来表示一个字符的编码，所以也就出现了在转换之后 byte[] 数组长度、内容不一致的情况。
+而 ISO-8859-1 编码是单字节编码，就不会出现这个问题。为了杜绝这个问题，我换成了 jackson-databind、jackson-core 来实现，使用 ObjectMapper 来序列化和反序列化，这种方式不会出现这个问题。
+
+相关类：  
+- [`com.aiocloud.gateway.cache.base.utils.SerializationUtil`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/base/utils/SerializationUtil.java)
 

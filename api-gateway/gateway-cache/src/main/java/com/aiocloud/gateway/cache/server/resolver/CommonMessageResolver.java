@@ -10,6 +10,8 @@ import com.aiocloud.gateway.cache.server.protocol.MessageTypeEnum;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Objects;
+
 /**
  * @description: CommonMessageResolver.java
  * @copyright: @copyright (c) 2022
@@ -38,12 +40,11 @@ public class CommonMessageResolver {
         response.setId(message.getId());
         response.setSessionId(message.getSessionId());
 
-        String body = message.getBody();
-        if (StrUtil.isEmpty(body)) {
+        CacheMessage cacheMessage = message.getBody();
+        if (Objects.isNull(cacheMessage)) {
             return response;
         }
 
-        CacheMessage cacheMessage = JSONObject.parseObject(body, CacheMessage.class);
         String key = cacheMessage.getKey();
 
         try {
@@ -57,7 +58,7 @@ public class CommonMessageResolver {
             log.error("around resolve cache error, key: {}, cause by:", key, ex);
         }
 
-        response.setBody(JSONObject.toJSONString(cacheMessage));
+        response.setBody(cacheMessage);
 
         return response;
     }

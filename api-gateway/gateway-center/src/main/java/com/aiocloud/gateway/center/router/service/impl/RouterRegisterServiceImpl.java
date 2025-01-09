@@ -1,5 +1,6 @@
 package com.aiocloud.gateway.center.router.service.impl;
 
+import cn.hutool.core.util.BooleanUtil;
 import com.aiocloud.gateway.constant.SystemConstant;
 import com.aiocloud.gateway.center.router.service.RouterRegisterService;
 import com.aiocloud.gateway.center.system.ServiceCenter;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * @description: RouterRegisterServiceImpl.java
@@ -36,8 +39,12 @@ public class RouterRegisterServiceImpl implements RouterRegisterService {
 
         try {
 
-            // 这里暂时使用缓存进行存储注册服务信息，后续可以改为数据库存储
-            serviceCenter.registerService(serviceInstance);
+            // 自己无需注册
+//            if (BooleanUtil.isFalse(Objects.equals(serviceInstance.getName(), gatewayServiceName))) {
+
+                // 这里暂时使用缓存进行存储注册服务信息，后续可以改为数据库存储
+                serviceCenter.registerService(serviceInstance);
+//            }
 
             return new CommonResponse(SystemConstant.RESPONSE_SUCCESS);
 

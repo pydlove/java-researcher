@@ -31,16 +31,16 @@ public class WhitelistFilter implements AccessFilter {
     }
 
     @Override
-    public boolean doFilter(ServerRequest request) {
+    public AccessPermission doFilter(ServerRequest request) {
 
         String whiteList = systemConfig.getWhiteList();
         if (StrUtil.isEmpty(whiteList)) {
-            return false;
+            return new AccessPermission(AccessPermission.UNCONFIRMED);
         }
 
         String[] whiteListArray = whiteList.split(",");
         if (ArrayUtil.isEmpty(whiteListArray)) {
-            return false;
+            return new AccessPermission(AccessPermission.UNCONFIRMED);
         }
 
         for (String accessRule : whiteListArray) {
@@ -52,11 +52,11 @@ public class WhitelistFilter implements AccessFilter {
             // 通过正则判断是否满足白名单规则
             String path = request.uri().getPath();
             if (antPathMatcher.match(accessRule.trim(), path)) {
-                return true;
+                return new AccessPermission(AccessPermission.ALLOW);
             }
         }
 
-        return false;
+        return new AccessPermission(AccessPermission.UNCONFIRMED);
     }
 
     public static void main(String[] args) {

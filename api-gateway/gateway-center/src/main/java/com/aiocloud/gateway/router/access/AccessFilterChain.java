@@ -72,14 +72,16 @@ public class AccessFilterChain implements AccessFilter {
      * @since 1.0.0
      */
     @Override
-    public boolean doFilter(ServerRequest request) {
+    public AccessPermission doFilter(ServerRequest request) {
 
+        AccessPermission accessPermission = new AccessPermission(AccessPermission.REFUSE);
         for (AccessFilter accessFilter : accessFilters) {
-            if (BooleanUtil.isFalse(accessFilter.doFilter(request))) {
-                return false;
+            accessPermission = accessFilter.doFilter(request);
+            if (BooleanUtil.isFalse(accessPermission.isUnconfirmed())) {
+                break;
             }
         }
 
-        return true;
+        return accessPermission;
     }
 }

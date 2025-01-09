@@ -21,10 +21,10 @@ public class SystemProperties {
 
     private static final Logger log = LoggerFactory.getLogger(SystemProperties.class);
 
-    @Prop(value = "server.host", defaultValue = "127.0.0.1")
+    @Prop(value = "cache.server.host", defaultValue = "127.0.0.1")
     public static String serverHost;
 
-    @Prop(value = "server.port", defaultValue = "8080")
+    @Prop(value = "cache.server.port", defaultValue = "8080")
     public static Integer serverPort;
 
     static {

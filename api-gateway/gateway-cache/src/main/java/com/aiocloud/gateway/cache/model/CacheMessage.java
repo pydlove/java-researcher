@@ -2,6 +2,8 @@ package com.aiocloud.gateway.cache.model;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  *
  * @description: CacheMessage.java
@@ -12,7 +14,9 @@ import lombok.Data;
  * @createTime: 2025-01-06 15:00 
  */
 @Data
-public class CacheMessage {
+public class CacheMessage implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String key;
 

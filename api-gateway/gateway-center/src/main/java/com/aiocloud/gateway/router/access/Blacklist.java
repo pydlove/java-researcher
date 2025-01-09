@@ -31,16 +31,16 @@ public class Blacklist implements AccessFilter {
     }
 
     @Override
-    public boolean doFilter(ServerRequest request) {
+    public AccessPermission doFilter(ServerRequest request) {
 
         String blackList = systemConfig.getBlackList();
         if (StrUtil.isEmpty(blackList)) {
-            return true;
+            return new AccessPermission(AccessPermission.UNCONFIRMED);
         }
 
         String[] blackListArray = blackList.split(",");
         if (ArrayUtil.isEmpty(blackListArray)) {
-            return true;
+            return new AccessPermission(AccessPermission.UNCONFIRMED);
         }
 
         for (String accessRule : blackListArray) {
@@ -52,10 +52,10 @@ public class Blacklist implements AccessFilter {
             // 通过正则判断是否满足黑名单规则
             String path = request.uri().getPath();
             if (antPathMatcher.match(accessRule, path)) {
-                return false;
+                return new AccessPermission(AccessPermission.REFUSE);
             }
         }
 
-        return true;
+        return new AccessPermission(AccessPermission.UNCONFIRMED);
     }
 }

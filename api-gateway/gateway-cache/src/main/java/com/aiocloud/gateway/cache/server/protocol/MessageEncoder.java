@@ -1,11 +1,18 @@
 package com.aiocloud.gateway.cache.server.protocol;
 
 import com.aiocloud.gateway.cache.base.constants.SystemConstant;
+import com.aiocloud.gateway.cache.base.utils.SerializationUtil;
+import com.aiocloud.gateway.cache.model.CacheMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -16,10 +23,34 @@ import java.util.Optional;
  * @version: 1.0.0
  * @createTime: 2025-01-06 13:59
  */
+@Slf4j
 public class MessageEncoder extends MessageToByteEncoder<Message> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Message message, ByteBuf out) throws Exception {
+
+        try {
+
+            doEncode(message, out);
+
+        } catch (Exception ex) {
+            log.error("encode message error, caused by:", ex);
+            throw new Exception(ex);
+        }
+    }
+
+    /**
+     * 开始编码
+     *
+     * @param: message
+     * @param: out
+     * @return: void
+     * @author: panyong
+     * @version: 1.0.0
+     * @createTime: 2025-01-09 11:02
+     * @since 1.0.0
+     */
+    private static void doEncode(Message message, ByteBuf out) throws Exception {
 
         // 这里会判断消息类型是不是 EMPTY 类型，如果是 EMPTY 类型，则表示当前消息不需要写入到管道中
         if (message.getMessageType() != MessageTypeEnum.EMPTY) {
@@ -60,14 +91,18 @@ public class MessageEncoder extends MessageToByteEncoder<Message> {
                 out.writeCharSequence(value, charset);
             });
 
-            if (null == message.getBody()) {
+            CacheMessage body = message.getBody();
+            if (Objects.isNull(body)) {
 
-                // 如果消息体为空，则写入0，表示消息体长度为0
                 out.writeInt(0);
             } else {
-                out.writeInt(message.getBody().length());
-                out.writeCharSequence(message.getBody(), Charset.defaultCharset());
+                byte[] bodyBytes = SerializationUtil.serializeObject(body);
+                out.writeInt(bodyBytes.length);
+
+                String charSequence = new String(bodyBytes, StandardCharsets.ISO_8859_1);
+                out.writeCharSequence(charSequence, StandardCharsets.ISO_8859_1);
             }
         }
     }
+
 }

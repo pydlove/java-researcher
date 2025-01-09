@@ -13,7 +13,6 @@ import com.aiocloud.gateway.config.SystemJwtConfig;
 import com.aiocloud.gateway.constant.SystemConstant;
 import com.aiocloud.gateway.mysql.mapper.LoginUserMapper;
 import com.aiocloud.gateway.mysql.po.LoginUserPO;
-import com.aiocloud.gateway.router.config.TokenCheck;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -55,19 +55,19 @@ public class CacheClientManager {
      * 获取缓存
      *
      * @param: key
-     * @return: T
+     * @return: Object
      * @author: panyong
      * @version: 1.0.0
      * @createTime: 2025-01-07 14:29
      * @since 1.0.0
      */
-    public <T> T getCache(String key) {
+    public Object getCache(String key) {
 
         try {
 
             Object cache = cacheClientPool.borrowObject().getCache(key);
             if (cache != null) {
-                return (T) cache;
+                return cache;
             }
 
         } catch (Exception ex) {

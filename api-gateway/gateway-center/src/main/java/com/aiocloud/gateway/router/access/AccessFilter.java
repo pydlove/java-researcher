@@ -13,5 +13,10 @@ import org.springframework.web.reactive.function.server.ServerRequest;
  */
 public interface AccessFilter {
 
-    boolean doFilter(ServerRequest request);
+    /**
+     * 过滤，主要校验用户是否有权限
+     * @param request
+     * @return
+     */
+    AccessPermission doFilter(ServerRequest request);
 }

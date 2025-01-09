@@ -1,7 +1,9 @@
 package com.aiocloud.gateway.cache.server.protocol;
 
+import com.aiocloud.gateway.cache.model.CacheMessage;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +18,9 @@ import java.util.Map;
  * @createTime: 2025-01-06 13:57 
  */
 @Data
-public class Message {
+public class Message implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private long id;
     private int magicNumber;
@@ -27,7 +31,7 @@ public class Message {
 
     private MessageTypeEnum messageType;
     private Map<String, String> attachments = new HashMap<>();
-    private String body;
+    private CacheMessage body;
 
     public Map<String, String> getAttachments() {
         return Collections.unmodifiableMap(attachments);

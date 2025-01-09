@@ -1,64 +1,70 @@
-package com.aiocloud.gateway.router.config;
+package com.aiocloud.gateway.router.access;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.aiocloud.gateway.base.utils.JwtUtil;
+import com.aiocloud.gateway.config.SystemConfig;
 import com.aiocloud.gateway.config.SystemJwtConfig;
 import com.aiocloud.gateway.constant.SystemConstant;
-import com.aiocloud.gateway.router.access.AccessFilterChain;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.reactive.function.server.ServerRequest;
 
 import java.util.List;
 
 /**
- * @description: TokenCheck.java
- * @copyright: @copyright (c) 2022
+ *
+ * @description: TokenFilter.java
+ * @copyright: @copyright (c) 2022 
  * @company: aiocloud
  * @author: panyong
- * @version: 1.0.0
- * @createTime: 2024-12-31 17:04
+ * @version: 1.0.0 
+ * @createTime: 2025-01-08 14:10 
  */
 @Slf4j
-@RequiredArgsConstructor
 @Component
-public class TokenCheck {
+@FilterOrder(3)
+public class TokenFilter implements AccessFilter {
 
-    private final AccessFilterChain accessFilterChain;
+    private final SystemConfig systemConfig;
+    private final AntPathMatcher antPathMatcher;
     private final SystemJwtConfig systemJwtConfig;
 
-    public boolean isTokenValid(ServerRequest request) {
+    public TokenFilter(SystemConfig systemConfig, SystemJwtConfig systemJwtConfig) {
+        this.systemConfig = systemConfig;
+        this.systemJwtConfig = systemJwtConfig;
+        this.antPathMatcher =  new AntPathMatcher();
+    }
 
-        // 需要对一些接口进行放行，这里要支持白名单、黑名单、免 token 校验的方式
-        if (BooleanUtil.isFalse(accessFilterChain.doFilter(request))) {
-            return false;
-        }
+    @Override
+    public AccessPermission doFilter(ServerRequest request) {
 
         // 获取 token
         String token = getTokenFromHeader(request);
-        if (token == null) return false;
+        if (token == null) return new AccessPermission(AccessPermission.REFUSE);
 
         // 签名验证
         if (BooleanUtil.isFalse(JwtUtil.verifySignature(token))) {
-            return false;
+            return new AccessPermission(AccessPermission.REFUSE);
         }
 
         // 过期时间检查
         if (BooleanUtil.isTrue(JwtUtil.isTokenExpired(token))) {
-            return false;
+            return new AccessPermission(AccessPermission.REFUSE);
         }
 
         // Issuer (iss 发行者) 和 Audience (aud 受众) 检查
         if (BooleanUtil.isFalse(JwtUtil.validateIssuer(token, systemJwtConfig.getIssuer())) || BooleanUtil.isFalse(JwtUtil.validateAudience(token))) {
-            return false;
+            return new AccessPermission(AccessPermission.REFUSE);
         }
 
         // 用户是否有权限访问接口（后续扩展）
 
-        return true;
+        return new AccessPermission(AccessPermission.ALLOW);
     }
 
     /**

@@ -82,6 +82,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.aiocloud</groupId>
+            <artifactId>gateway-cache</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
             <version>5.0.0</version>
