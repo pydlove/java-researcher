@@ -5,12 +5,14 @@
 - [功能](#功能)
 - [项目结构](#项目结构)
 - [应用的技术](#应用的技术)
+- [认证与授权模块](#认证与授权模块)
     - [JWT 认证](#jwt-认证)
         - [短生命周期令牌 + 刷新令牌如何实现？](#短生命周期令牌-刷新令牌如何实现)
         - [如何进行 token 的验证？](#如何进行-token-的验证)
     - [AntPathMatcher 实现路径的匹配判断](#antpathmatcher-实现路径的匹配判断)
     - [数据库连接池 Druid](#数据库连接池-druid)
     - [责任链的设计模式](#责任链的设计模式)
+- [缓存模块](#缓存模块)
     - [系统缓存的实现](#系统缓存的实现)
         - [缓存的数据存储在哪里？](#缓存的数据存储在哪里)
         - [如何设置和读取缓存？](#如何设置和读取缓存)
@@ -21,6 +23,12 @@
     - [缓存客户端如何设置和读取缓存？](#缓存客户端如何设置和读取缓存)
     - [并发情况的 message id 如何生成？](#并发情况的-message-id-如何生成)
     - [缓存的序列化和反序列化过程中，字符集导致反序列化失败？](#缓存的序列化和反序列化过程中，字符集导致反序列化失败)
+- [协议转换模块](#协议转换模块)
+- [流量控制模块](#流量控制模块)
+- [日志记录和监控模块](#日志记录和监控模块)
+- [聚合 API 模块](#聚合 API 模块)
+- [请求/响应转换模块](#请求/响应转换模块)
+- [安全策略实施模块](#安全策略实施模块)
 
 ---
 
@@ -34,7 +42,7 @@
 6. 流量控制
 7. 日志记录和监控
 8. 聚合API
-9. 请求/响应转
+9. 请求/响应转换
 10. 安全策略实施
 
 ---
@@ -50,6 +58,10 @@ api-gateway
 ---
 
 ## 应用的技术
+
+---
+
+## 认证与授权模块
 
 ### JWT 认证
 
@@ -100,6 +112,10 @@ JWT 有什么问题？目前发现 JWT 无法实现续期，实现续期需要�
 在 `com.aiocloud.gateway.router.access` 包下面，是责任链的模式，主要解决的业务场景是需要对访问的请求
 进行黑名单、白名单过滤。这里还设计了执行的优先权重，通过 [`com.aiocloud.gateway.router.access.FilterOrder`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-center/src/main/java/com/aiocloud/gateway/router/access/FilterOrder.java)
 这个注解实现了过滤的优先级，黑名单的优先级要高于白名单。
+
+---
+
+## 缓存模块
 
 ### 如何实现系统缓存？
 
@@ -192,3 +208,28 @@ ServerStartApplication 这个是入口类，CacheServerApplication 这个是服�
 相关类：  
 - [`com.aiocloud.gateway.cache.base.utils.SerializationUtil`](https://github.com/pydlove/java-researcher/blob/main/api-gateway/gateway-cache/src/main/java/com/aiocloud/gateway/cache/base/utils/SerializationUtil.java)
 
+---
+
+## 协议转换模块
+
+---
+
+## 流量控制模块
+
+---
+
+## 日志记录和监控模块
+
+---
+
+## 聚合 API 模块
+
+---
+
+## 请求/响应转换模块
+
+---
+
+## 安全策略实施模块
+
+---
