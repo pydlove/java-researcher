@@ -19,5 +19,9 @@
         <module>api-gateway</module>
         <module>test-service</module>
         <module>reactive</module>
+        <module>sensitive_identify</module>
+        <module>llm</module>
+        <module>algorithm</module>
+        <module>llm-springboot</module>
     </modules>
 </project>
