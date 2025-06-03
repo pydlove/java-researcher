@@ -23,5 +23,6 @@
         <module>llm</module>
         <module>algorithm</module>
         <module>llm-springboot</module>
+        <module>spring-cloud</module>
     </modules>
 </project>
