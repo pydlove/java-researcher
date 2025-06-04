@@ -24,5 +24,6 @@
         <module>algorithm</module>
         <module>llm-springboot</module>
         <module>spring-cloud</module>
+        <module>sharding-sphere</module>
     </modules>
 </project>
