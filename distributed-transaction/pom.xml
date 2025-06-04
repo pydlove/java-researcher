@@ -3,29 +3,29 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.0</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
 
     <groupId>org.aiocloud</groupId>
-    <artifactId>java-researcher</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>distributed-transaction</artifactId>
+    <version>${revision}</version>
+    <name>distributed-transaction</name>
+    <description>分布式事务</description>
     <packaging>pom</packaging>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <revision>1.0.0-SNAPSHOT</revision>
     </properties>
 
     <modules>
-        <module>api-gateway</module>
-        <module>test-service</module>
-        <module>reactive</module>
-        <module>sensitive_identify</module>
-        <module>llm</module>
-        <module>algorithm</module>
-        <module>llm-springboot</module>
-        <module>spring-cloud</module>
-        <module>sharding-sphere</module>
-        <module>distributed-transaction</module>
-        <module>distributed-transaction/demo-2PC</module>
+        <module>demo-2PC</module>
     </modules>
+
 </project>
