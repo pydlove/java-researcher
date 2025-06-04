@@ -9,9 +9,9 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>demo-2PC</artifactId>
+    <artifactId>atomikos-2PC</artifactId>
     <version>${revision}</version>
-    <name>demo-2PC</name>
+    <name>atomikos-2PC</name>
     <description>2PC 两阶段提交</description>
     <packaging>jar</packaging>
 
