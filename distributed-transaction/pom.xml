@@ -26,6 +26,7 @@
 
     <modules>
         <module>atomikos-2PC</module>
+        <module>seata-xa</module>
     </modules>
 
 </project>

@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
+import java.util.Stack;
+
 /**
  *
  * @description: TestApplication.java
@@ -18,6 +20,9 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 public class TestApplication {
     public static void main(String[] args) {
+
+        Stack<Character> stack = new Stack<>();
+        Character last = stack.peek();
         SpringApplication.run(TestApplication.class, args);
     }
 }
