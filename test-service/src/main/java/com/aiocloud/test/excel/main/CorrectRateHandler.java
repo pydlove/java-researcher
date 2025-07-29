@@ -19,6 +19,7 @@ public class CorrectRateHandler {
 
     public static void main(String[] args) {
 
+        // 49 base + 200 bussiness = 52.09%
         calculateCorrectRate(4114,4484,4976, 12968);
     }
 
