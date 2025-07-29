@@ -1,4 +1,4 @@
-package com.aiocloud.test.excel;
+package com.aiocloud.test.excel.main;
 
 import com.aiocloud.test.excel.base.FieldInfo;
 import lombok.Data;
@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Slf4j
@@ -15,11 +14,11 @@ public class BaseProcessor {
     // public String excelFileName = "（金融）全量训练数据测试0725_1753422342542.xlsx";
     // public String keyName = "（金融）全量训练数据测试0725_1753422342542";
 
-    // public String excelFileName = "0717优化_test0721_1753670235464.xlsx";
-    // public String keyName = "0717优化_test0721_1753670235464";
+     public String excelFileName = "0717优化_test0721_1753670235464.xlsx";
+     public String keyName = "0717优化_test0721_1753670235464";
 
-    public String excelFileName = "FRAAH_0717优化_test0721_1753670235464_4484_4114.xlsx";
-    public String keyName = "FRAAH_0717优化_test0721_1753670235464_4484_4114";
+//    public String excelFileName = "FRAAH_0717优化_test0721_1753670235464_4484_4114.xlsx";
+//    public String keyName = "FRAAH_0717优化_test0721_1753670235464_4484_4114";
 
     public String inputFilePath = CommonProcessor.BASE_PATH + excelFileName;
     public String sheetName = "字段核验信息";

@@ -1,9 +1,8 @@
-package com.aiocloud.test.excel;
+package com.aiocloud.test.excel.main;
 
 import com.aiocloud.test.excel.base.FieldInfo;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -67,9 +66,10 @@ public class FiledRuleAndAiHandler extends BaseProcessor {
             }
         }
 
-        String outFilePath = CommonProcessor.BASE_PATH + "FRAAH_" + baseProcessor.keyName + "_" + total + "_" + correctCount + ".xlsx";
-        CommonProcessor.writeToExcel(businessFieldList, baseProcessor.sheetName, baseProcessor.getSheetName(), baseProcessor.inputFilePath, outFilePath);
-        log.info("writeToExcel finish, path: {}", outFilePath);
+        // 写出业务字段信息
+        // String outFilePath = CommonProcessor.BASE_PATH + "FRAAH_" + baseProcessor.keyName + "_" + total + "_" + correctCount + ".xlsx";
+        // CommonProcessor.writeToExcel(businessFieldList, baseProcessor.sheetName, baseProcessor.getSheetName(), baseProcessor.inputFilePath, outFilePath);
+        // log.info("writeToExcel finish, path: {}", outFilePath);
 
         BigDecimal accuracy = new BigDecimal(correctCount * 100.0 / total)
                 .setScale(2, RoundingMode.HALF_UP);

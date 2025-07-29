@@ -1,4 +1,4 @@
-package com.aiocloud.test.excel;
+package com.aiocloud.test.excel.main;
 
 import cn.hutool.core.util.StrUtil;
 import com.aiocloud.test.excel.base.FieldInfo;
@@ -32,7 +32,7 @@ public class CommonProcessor {
             File.separator + "src" + File.separator + "main" +
             File.separator + "java" + File.separator +
             "com" + File.separator + "aiocloud" + File.separator +
-            "test" + File.separator + "excel" + File.separator;
+            "test" + File.separator + "excel" + File.separator + "file" + File.separator;
 
     public static List<List<FieldInfo>> deduplicateGroups(List<List<FieldInfo>> businessGroups) {
 
