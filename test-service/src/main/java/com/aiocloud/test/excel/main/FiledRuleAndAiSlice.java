@@ -3,6 +3,7 @@ package com.aiocloud.test.excel.main;
 import com.aiocloud.test.excel.base.FieldInfo;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -16,17 +17,19 @@ import java.util.Map;
  * @copyright: @copyright (c) 2022 
  * @company: aiocloud
  * @author: panyong
- * @version: 1.0.0 
+ * @version: 1.0.0
  * @createTime: 2025-07-29 10:14 
  */
 @Slf4j
-public class FiledRuleAndAiHandler extends BaseProcessor {
+public class FiledRuleAndAiSlice extends BaseProcessor {
 
     public static void main(String[] args) throws Exception {
 
-        BaseProcessor baseProcessor = new FiledRuleAndAiHandler();
+        BaseProcessor baseProcessor = new FiledRuleAndAiSlice();
 
-        String trainFilePath = CommonProcessor.BASE_PATH + "EFP_0717优化_test0721_1753670235464_1753752861647.xlsx";
+        String trainFilePath = CommonProcessor.BASE_PATH +
+                "metadata" + File.separator +
+                "EFP_0717优化_test0721_1753670235464_1753752861647.xlsx";
 
         Map<String, FieldInfo> essentialFieldMap = new HashMap<>();
 

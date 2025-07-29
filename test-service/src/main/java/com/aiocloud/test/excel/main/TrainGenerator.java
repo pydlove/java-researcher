@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.aiocloud.test.excel.base.FieldInfo;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,11 +16,11 @@ import java.util.Map;
  * @copyright: @copyright (c) 2022 
  * @company: aiocloud
  * @author: panyong
- * @version: 1.0.0 
+ * @version: 1.0.0
  * @createTime: 2025-07-22 14:29 
  */
 @Slf4j
-public class ExcelFieldProcessorV1 extends BaseProcessor {
+public class TrainGenerator extends BaseProcessor {
 
     private static final double[] DUPLICATE_FACTORS = new double[]{
             0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0
@@ -32,10 +33,13 @@ public class ExcelFieldProcessorV1 extends BaseProcessor {
         String essentialField = "是否基础字段";
         int maxDuplicates = 10;
 
-        BaseProcessor baseProcessor = new ExcelFieldProcessorV1();
+        BaseProcessor baseProcessor = new TrainGenerator();
         baseProcessor.setIsPreDeduplication(false);
 
-        String outFilePath = CommonProcessor.BASE_PATH + "EFP_" + baseProcessor.getKeyName() + "_" + System.currentTimeMillis() + ".xlsx";
+        String outFilePath = CommonProcessor.BASE_PATH +
+                "efp" + File.separator +
+                "EFP_" + baseProcessor.getKeyName() + "_" + System.currentTimeMillis() + ".xlsx";
+
         baseProcessor.setOutFilePath(outFilePath);
 
         List<List<FieldInfo>> fixedGroups = baseProcessor.doProcess();
@@ -98,7 +102,14 @@ public class ExcelFieldProcessorV1 extends BaseProcessor {
         // 合并数据
 //        essentialSelectRows.addAll(duplicatedRows);
 
-        CommonProcessor.writeToExcel(essentialSelectRows, baseProcessor.getSheetName(), baseProcessor.getSheetName(), baseProcessor.inputFilePath, outFilePath);
+        CommonProcessor.writeToExcel(
+                essentialSelectRows,
+                baseProcessor.getSheetName(),
+                baseProcessor.getSheetName(),
+                baseProcessor.inputFilePath,
+                outFilePath
+        );
+
         log.info("writeToExcel finish, path: {}", outFilePath);
     }
 

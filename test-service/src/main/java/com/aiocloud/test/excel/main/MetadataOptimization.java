@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * @createTime: 2025-07-22 14:29 
  */
 @Slf4j
-public class FieldCommentVerifier {
+public class MetadataOptimization {
 
 
     private static final String STRATEGY_SIMILARITY = "Similarity";
@@ -48,7 +48,7 @@ public class FieldCommentVerifier {
          String inputFilePath = CommonProcessor.BASE_PATH + "test0715.xlsx";
          String outputFilePath = CommonProcessor.BASE_PATH + "0717优化_test0721_" + System.currentTimeMillis() + ".xlsx";
 
-        BaseProcessor baseProcessor = new ExcelFieldProcessorV1();
+        BaseProcessor baseProcessor = new TrainGenerator();
         baseProcessor.setIsPreDeduplication(false);
 
 //        String inputFilePath = CommonProcessor.BASE_PATH + "（金融）全量训练数据测试0725.xlsx";
