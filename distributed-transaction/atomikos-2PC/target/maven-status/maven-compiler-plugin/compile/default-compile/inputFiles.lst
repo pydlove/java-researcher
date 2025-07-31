@@ -1,0 +1,10 @@
+D:\1@CodeManager\project\java-researcher\distributed-transaction\atomikos-2PC\src\main\java\com\aiocloud\twopc\config\SecondaryDatasource.java
+D:\1@CodeManager\project\java-researcher\distributed-transaction\atomikos-2PC\src\main\java\com\aiocloud\twopc\config\PrimaryDatasource.java
+D:\1@CodeManager\project\java-researcher\distributed-transaction\atomikos-2PC\src\main\java\com\aiocloud\twopc\TwoPCApplication.java
+D:\1@CodeManager\project\java-researcher\distributed-transaction\atomikos-2PC\src\main\java\com\aiocloud\twopc\repository\mysql\PrimaryAccountRepository.java
+D:\1@CodeManager\project\java-researcher\distributed-transaction\atomikos-2PC\src\main\java\com\aiocloud\twopc\controller\TransferController.java
+D:\1@CodeManager\project\java-researcher\distributed-transaction\atomikos-2PC\src\main\java\com\aiocloud\twopc\entity\Account.java
+D:\1@CodeManager\project\java-researcher\distributed-transaction\atomikos-2PC\src\main\java\com\aiocloud\twopc\config\JtaConfig.java
+D:\1@CodeManager\project\java-researcher\distributed-transaction\atomikos-2PC\src\main\java\com\aiocloud\twopc\config\SecondaryDataSourceJpaConfig.java
+D:\1@CodeManager\project\java-researcher\distributed-transaction\atomikos-2PC\src\main\java\com\aiocloud\twopc\service\impl\TransferServiceImpl.java
+D:\1@CodeManager\project\java-researcher\distributed-transaction\atomikos-2PC\src\main\java\com\aiocloud\twopc\service\TransferService.java

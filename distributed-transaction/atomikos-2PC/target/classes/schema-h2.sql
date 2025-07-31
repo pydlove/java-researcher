@@ -1,0 +1,1 @@
+select a1_0.id,a1_0.accountName,a1_0.accountNumber,a1_0.balance from "2pc".ACCOUNT a1_0;

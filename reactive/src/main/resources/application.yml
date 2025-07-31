@@ -1,0 +1,6 @@
+spring:
+  r2dbc:
+    password: Abc@1234
+    username: root
+    url: r2dbc:mysql://172.16.62.211:3307/test1
+    name: test1

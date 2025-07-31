@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aiocloud.test.license.mapper.MetadataRecordMapper">
+
+    <select id="selectByDatasourceId" resultType="com.aiocloud.test.license.po.MetadataRecord">
+        SELECT id, datasource_id as datasourceId, metadata_name as metadataName,
+               status, created_time as createdTime, updated_time as updatedTime
+        FROM metadata_records
+        WHERE datasource_id = #{datasourceId}
+          AND status = 1
+    </select>
+
+    <update id="batchMarkAsDeleted">
+        UPDATE metadata_records
+        SET status = 0,
+        updated_time = NOW()
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

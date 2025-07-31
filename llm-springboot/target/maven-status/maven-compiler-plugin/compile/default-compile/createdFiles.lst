@@ -1,0 +1,8 @@
+com\aiocloud\llm\springboot\controller\ChatController.class
+com\aiocloud\llm\springboot\config\InMysqlChatMemoryStore.class
+com\aiocloud\llm\springboot\LlmApplication.class
+com\aiocloud\llm\springboot\config\AssistantConfig.class
+com\aiocloud\llm\springboot\config\FunctionCallService.class
+com\aiocloud\llm\springboot\config\AssistantConfig$Assistant.class
+com\aiocloud\llm\springboot\controller\ChatController$1.class
+com\aiocloud\llm\springboot\config\AssistantConfig$AssistantUnique.class

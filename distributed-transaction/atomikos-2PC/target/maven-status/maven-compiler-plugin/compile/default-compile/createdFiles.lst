@@ -1,0 +1,10 @@
+com\aiocloud\twopc\config\JtaConfig.class
+com\aiocloud\twopc\entity\Account.class
+com\aiocloud\twopc\controller\TransferController.class
+com\aiocloud\twopc\config\PrimaryDatasource.class
+com\aiocloud\twopc\config\SecondaryDataSourceJpaConfig.class
+com\aiocloud\twopc\service\TransferService.class
+com\aiocloud\twopc\repository\mysql\PrimaryAccountRepository.class
+com\aiocloud\twopc\service\impl\TransferServiceImpl.class
+com\aiocloud\twopc\config\SecondaryDatasource.class
+com\aiocloud\twopc\TwoPCApplication.class

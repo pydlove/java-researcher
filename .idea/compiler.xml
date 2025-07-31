@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="dao-mysql" />
+        <module name="sharding-sphere" />
+        <module name="sensitive_identify" />
+        <module name="test-service" />
+        <module name="seata-xa" />
+        <module name="llm" />
+        <module name="eureka-server" />
+        <module name="reactive" />
+        <module name="eureka-client" />
+        <module name="gateway-center" />
+        <module name="gateway-cache" />
+        <module name="atomikos-2PC" />
+        <module name="gateway-core" />
+        <module name="algorithm" />
+        <module name="llm-springboot" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="custom-build" target="1.5" />
+      <module name="dao" target="17" />
+      <module name="demo" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="api-gateway" options="" />
+      <module name="api-gateway (1)" options="" />
+      <module name="atomikos-2PC" options="-parameters" />
+      <module name="dao-mysql" options="-parameters" />
+      <module name="demo" options="" />
+      <module name="eureka-client" options="-parameters" />
+      <module name="eureka-server" options="-parameters" />
+      <module name="gateway-cache" options="-parameters" />
+      <module name="gateway-center" options="-parameters" />
+      <module name="gateway-core" options="-parameters" />
+      <module name="llm-springboot" options="-parameters" />
+      <module name="reactive" options="-parameters" />
+      <module name="seata-xa" options="-parameters" />
+      <module name="sharding-sphere" options="-parameters" />
+      <module name="test-service" options="-parameters" />
+    </option>
+  </component>
+</project>
