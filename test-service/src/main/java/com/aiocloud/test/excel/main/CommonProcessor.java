@@ -468,69 +468,73 @@ public class CommonProcessor {
         LevenshteinDistance distance = new LevenshteinDistance();
         List<List<FieldInfo>> groups = new ArrayList<>();
 
-        int i = 0;
         for (FieldInfo fieldInfo : fieldInfos) {
-
-            i++;
-            String fieldName = fieldInfo.getFieldName();
-            String fieldComment = fieldInfo.getFieldComment();
-
-            // 组合要比较的字符串
-            String combined = isOnlyFieldNameMatch ? fieldName :
-                    (fieldName != null ? fieldName : "") + " " + (fieldComment != null ? fieldComment : "");
-
-            if (combined.trim().isEmpty()) {
-                continue;
-            }
+            String fieldName = preprocessString(fieldInfo.getFieldName());
+            String fieldComment = preprocessString(fieldInfo.getFieldComment());
 
             boolean added = false;
 
-            log.info("field name: {}, comment: {}, index: {}", fieldName, fieldComment, i);
-
-            // 与已有分组比较
-            int j = 0;
             for (List<FieldInfo> group : groups) {
+                String groupFieldName = preprocessString(group.get(0).getFieldName());
+                String groupFieldComment = preprocessString(group.get(0).getFieldComment());
 
-                j++;
-                String groupFieldName = group.get(0).getFieldName();
-                String groupFieldComment = group.get(0).getFieldComment();
-
-                String groupCombined = isOnlyFieldNameMatch ? groupFieldName :
-                        (groupFieldName != null ? groupFieldName : "") + " " + (groupFieldComment != null ? groupFieldComment : "");
-
-                if (groupCombined.trim().isEmpty()) {
-                    continue;
+                double similarity;
+                if (isOnlyFieldNameMatch) {
+                    similarity = calculateNormalizedSimilarity(fieldName, groupFieldName, distance);
+                } else {
+                    // 使用加权相似度
+                    double nameSimilarity = calculateNormalizedSimilarity(fieldName, groupFieldName, distance);
+                    double commentSimilarity = calculateNormalizedSimilarity(fieldComment, groupFieldComment, distance);
+                    similarity = 0.7 * nameSimilarity + 0.3 * commentSimilarity;
                 }
 
-                // 计算相似度
-                int maxLength = Math.max(combined.length(), groupCombined.length());
-                if (maxLength == 0) continue;
+                // 动态阈值调整
+                double adjustedThreshold = adjustThreshold(similarityThreshold,
+                        Math.max(fieldName.length(), groupFieldName.length()));
 
-                double similarity = 1 - (distance.apply(combined, groupCombined) / (double) maxLength);
-                // log.info("Similarity: {}, name: {}, comment: {}, index: {}/{}", similarity, name, comment, j, i);
-
-                if (similarity >= similarityThreshold) {
+                if (similarity >= adjustedThreshold) {
                     group.add(fieldInfo);
                     added = true;
                     break;
                 }
             }
 
-            // 如果没有匹配的组，创建新组
             if (!added) {
-                List<FieldInfo> newGroup = new ArrayList<>();
-                newGroup.add(fieldInfo);
-                groups.add(newGroup);
+                groups.add(new ArrayList<>(Collections.singletonList(fieldInfo)));
             }
         }
 
         return groups;
     }
 
+    private static double calculateNormalizedSimilarity(String s1, String s2, LevenshteinDistance distance) {
+        if (s1.isEmpty() && s2.isEmpty()) return 1.0;
+        if (s1.isEmpty() || s2.isEmpty()) return 0.0;
+
+        int editDistance = distance.apply(s1, s2);
+        int maxLength = Math.max(s1.length(), s2.length());
+
+        // 使用改进的归一化公式
+        return 1.0 - (editDistance / (double) (s1.length() + s2.length()));
+    }
+
+    private static double adjustThreshold(double baseThreshold, int length) {
+        // 对长字符串稍微放宽阈值
+        return baseThreshold * (1 - 0.1 * Math.log1p(length));
+    }
+
+    private static String preprocessString(String str) {
+        if (str == null) return "";
+        return str.toLowerCase().trim().replaceAll("\\s+", " ");
+    }
+
     public static List<List<FieldInfo>> groupBySimilarityV1(
             List<FieldInfo> fieldInfos, boolean isOnlyFieldNameMatch, double similarityThreshold) {
 
-        WordVectors wordVectors = WordVectorSerializer.loadStaticModel(new File("path/to/word2vec/model"));
+        String modelPath = CommonProcessor.BASE_PATH + "model" + File.separator
+                + "GoogleNews-vectors-negative300.bin";
+
+        WordVectors wordVectors = WordVectorSerializer.loadStaticModel(new File(modelPath));
         List<List<FieldInfo>> groups = new ArrayList<>();
 
         int i = 0;

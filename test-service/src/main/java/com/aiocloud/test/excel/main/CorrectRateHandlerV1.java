@@ -52,11 +52,11 @@ public class CorrectRateHandlerV1 {
         );
 
         // 49 base + 400 bussiness
-        // top1Accuracy: 71.19%, top5Accuracy: 80.83%, top1FinalAccuracy: 66.03%, top5FinalAccuracy: 74.97%
+        // top1Accuracy: 71.78%, top5Accuracy: 81.82%, top1FinalAccuracy: 67.64%, top5FinalAccuracy: 77.09%
         calculateCorrectRate(
                 4114, 4484,
-                6677, 2991, 1317,
-                800, 12153
+                6680, 2987, 1007,
+                1000, 11953
         );
 
     }

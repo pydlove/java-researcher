@@ -17,23 +17,23 @@ import java.io.File;
 @Slf4j
 public class PipelineGenerator {
 
-    public static final int SEQ = 4;
-    public static final int VERSION = 4;
+    public static final int SEQ = 1;
+    public static final int VERSION = 5;
     public static final String METADATA_SHEET_NAME = "字段核验信息";
 
     public static void main(String[] args) throws Exception {
 
         int targetNum = 200;
 
-//         firstStep(targetNum);
+         firstStep(targetNum);
 
-        secondStep(targetNum);
+//        secondStep(targetNum);
     }
 
     private static void secondStep(int targetNum) throws Exception {
 
         String sheetName = "智能分类测试结果明细";
-        String originFileName = "ModelResultDetailFile (9)";
+        String originFileName = "ModelResultDetailFile (10)";
         PredictHandler.doPredict(originFileName, targetNum);
     }
 
