@@ -88,7 +88,7 @@ public class DatasetHandler {
         log.info("Create data rows complete: {}", rowNum - 1);
     }
 
-    public List<DatasetInfo> readDatasetList(String filePath, String sheetName) throws IOException {
+    public static List<DatasetInfo> readDatasetList(String filePath, String sheetName) throws IOException {
 
         List<DatasetInfo> metadata = new ArrayList<>();
 

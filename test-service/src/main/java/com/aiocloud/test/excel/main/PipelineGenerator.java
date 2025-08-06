@@ -1,9 +1,12 @@
 package com.aiocloud.test.excel.main;
 
+import com.aiocloud.test.excel.base.FieldInfo;
 import com.aiocloud.test.excel.base.TrainMetadataGeneratorParam;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -16,25 +19,44 @@ import java.io.File;
  */
 @Slf4j
 public class PipelineGenerator {
+//
+//    public static final int SEQ = 9;
+//    public static final int VERSION = 4;
+
+//    public static final int SEQ = 3;
+//    public static final int VERSION = 5;
 
     public static final int SEQ = 1;
-    public static final int VERSION = 5;
+    public static final int VERSION = 10;
     public static final String METADATA_SHEET_NAME = "字段核验信息";
 
     public static void main(String[] args) throws Exception {
 
-        int targetNum = 200;
+        int targetNum = 500;
 
          firstStep(targetNum);
-
+//
 //        secondStep(targetNum);
+//        secondStepV2(targetNum);
     }
 
     private static void secondStep(int targetNum) throws Exception {
 
         String sheetName = "智能分类测试结果明细";
-        String originFileName = "ModelResultDetailFile (10)";
+        String originFileName = "ModelResultDetailFile (18)";
         PredictHandler.doPredict(originFileName, targetNum);
+    }
+
+    private static void secondStepV2(int targetNum) throws Exception {
+
+        List<String> trainFileList = new ArrayList<>();
+        trainFileList.add("（担保）训练集-V5-200-0.7-基础字段正则-1.xlsx");
+        trainFileList.add("（担保）训练集-V5-200-0.7-基础字段正则-2.xlsx");
+        trainFileList.add("（担保）训练集-V5-200-0.7-基础字段正则-3.xlsx");
+
+        String sheetName = "智能分类测试结果明细";
+        String originFileName = "ModelResultDetailFile (21)";
+        PredictHandler.doPredictV2(originFileName, targetNum, trainFileList);
     }
 
     private static void firstStep(int targetNum) throws Exception {

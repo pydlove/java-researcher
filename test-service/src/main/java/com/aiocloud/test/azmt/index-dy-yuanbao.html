@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说-Java：枚举使用场景</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+XiaoWei&display=swap');
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            display: flex;
+            overflow-x: auto;
+        }
+
+        .card-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .card {
+            width: 450px;
+            height: 600px;
+            background-color: #FAF7F0;
+            background-image: repeating-linear-gradient(to bottom, rgba(224,224,224,0.3), rgba(224,224,224,0.3) 1px, transparent 1px, transparent 24px);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: repeating-linear-gradient(to right, #E0E0E0, #E0E0E0 10px, transparent 10px, transparent 20px);
+        }
+
+        .card-cover {
+            background: linear-gradient(135deg, #FF9A9E, #FAD0C4);
+        }
+
+        .title-box {
+            border: 2px solid #FF6B6B;
+            border-radius: 8px;
+            padding: 8px 15px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .main-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            margin: 0;
+        }
+
+        .sub-title {
+            font-size: 24px;
+            font-weight: 500;
+            color: #333;
+            margin: 15px 0 10px;
+        }
+
+        .content-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            margin: 0 0 15px;
+        }
+
+        .highlight {
+            background-color: rgba(255, 223, 0, 0.5);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+
+        .feature-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .feature-item {
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .feature-item::before {
+            content: "•";
+            color: #FF6B6B;
+            font-weight: bold;
+            position: absolute;
+            left: -15px;
+        }
+
+        .code-block {
+            background-color: rgba(78, 205, 196, 0.1);
+            border-left: 3px solid #4ECDC4;
+            padding: 10px;
+            font-family: 'ZCOOL XiaoWei', monospace;
+            font-size: 14px;
+            border-radius: 0 4px 4px 0;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: rgba(255, 107, 107, 0.2);
+            color: #FF6B6B;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            right: 25px;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+
+        .ip {
+            font-weight: 500;
+            color: #FF6B6B;
+        }
+
+        .icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background-color: #FF6B6B;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="card-container">
+    <!-- 封面卡 -->
+    <div class="card card-cover">
+        <div style="display: flex; flex-direction: column; height: 100%; justify-content: center; align-items: center;">
+            <div style="text-align: center;">
+                <div class="title-box">
+                    <h1 class="main-title">Java枚举</h1>
+                </div>
+                <h2 style="font-size: 28px; margin: 20px 0; color: #333;">8大实用场景全解析</h2>
+                <p style="font-size: 18px; color: #555;">告别魔法数字，提升代码质量</p>
+            </div>
+            <div class="footer">
+                <span class="ip">墨墨说-Java</span> · 编程最佳实践
+            </div>
+        </div>
+    </div>
+
+    <!-- 场景1：固定集合常量 -->
+    <div class="card">
+        <div class="title-box">
+            <h2 class="main-title">场景1：固定集合常量</h2>
+        </div>
+        <p class="content-text">表示一组<span class="highlight">固定的、预定义的常量</span>（如状态、类型、模式等），比普通常量更安全、更易维护。</p>
+
+        <div class="code-block">
+            public enum OrderStatus {<br>
+            &nbsp;&nbsp;PENDING, PAID, SHIPPED, <br>
+            &nbsp;&nbsp;DELIVERED, CANCELLED<br>
+            }
+        </div>
+
+        <h3 class="sub-title">优势</h3>
+        <ul class="feature-list">
+            <li class="feature-item">编译时类型检查</li>
+            <li class="feature-item">自动补全支持</li>
+            <li class="feature-item">避免拼写错误</li>
+        </ul>
+
+        <div class="footer">
+            <span class="ip">墨墨说-Java</span> · 枚举基础用法
+        </div>
+    </div>
+
+    <!-- 场景2：替代魔法值 -->
+    <div class="card">
+        <div class="title-box">
+            <h2 class="main-title">场景2：替代魔法值</h2>
+        </div>
+        <p class="content-text">避免直接使用数字或字符串字面量（如 1、"A"），用枚举提高<span class="highlight">可读性</span>和<span class="highlight">类型安全</span>。</p>
+
+        <div class="code-block">
+            public enum LogLevel {<br>
+            &nbsp;&nbsp;DEBUG, INFO, WARN, ERROR<br>
+            }<br><br>
+            // 使用：LogLevel.ERROR<br>
+            // 代替直接写 "ERROR"
+        </div>
+
+        <h3 class="sub-title">使用技巧</h3>
+        <p class="content-text">配合switch语句使用，编译器会检查是否处理了所有枚举值。</p>
+
+        <div class="footer">
+            <span class="ip">墨墨说-Java</span> · 代码可读性提升
+        </div>
+    </div>
+
+    <!-- 场景3：附加行为 -->
+    <div class="card">
+        <div class="title-box">
+            <h2 class="main-title">场景3：附加行为</h2>
+        </div>
+        <p class="content-text">枚举可以包含方法、字段，甚至实现接口，为每个常量赋予<span class="highlight">特定逻辑</span>。</p>
+
+        <div class="code-block">
+            public enum Operation {<br>
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;ADD {
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public double apply(double x, double y) { return x + y; }
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;SUBTRACT { <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public double apply(double x, double y) { return x - y; }
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;};<br>
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;public abstract double apply(double x, double y);<br>
+            <br>
+            }
+        </div>
+
+        <h3 class="sub-title">适用场景</h3>
+        <div style="margin-bottom: 15px;">
+            <span class="tag">策略模式</span>
+            <span class="tag">状态模式</span>
+            <span class="tag">命令模式</span>
+        </div>
+
+        <div class="footer">
+            <span class="ip">墨墨说-Java</span> · 枚举高级用法
+        </div>
+    </div>
+
+    <!-- 场景4-5：单例与多例 -->
+    <div class="card">
+        <div class="title-box">
+            <h2 class="main-title">场景4-5：单例与多例</h2>
+        </div>
+
+        <div style="display: flex; margin-bottom: 15px;">
+            <div style="flex: 1; padding-right: 10px;">
+                <h3 style="font-size: 18px; color: #FF6B6B; margin-bottom: 5px;">单例模式</h3>
+                <p style="font-size: 14px; margin: 0;">枚举天然支持线程安全的单例实现</p>
+                <div class="code-block" style="font-size: 13px;height: 197px;">
+                    public enum Singleton {<br>
+                    &nbsp;&nbsp;INSTANCE;<br>
+                    &nbsp;&nbsp;public void doSomething() { /* ... */ }<br>
+                    }
+                </div>
+            </div>
+            <div style="flex: 1; padding-left: 10px;">
+                <h3 style="font-size: 18px; color: #4ECDC4; margin-bottom: 5px;">多例模式</h3>
+                <p style="font-size: 14px; margin: 0;">一组有限的、预定义的不可变对象</p>
+                <div class="code-block" style="font-size: 13px;">
+                    public enum Color {<br><br>
+                    &nbsp;&nbsp;RED("#FF0000"), <br>&nbsp;&nbsp;GREEN("#00FF00");<br><br>
+                    &nbsp;&nbsp;private String hexCode;<br><br>
+                    &nbsp;&nbsp;Color(String hexCode) { <br> &nbsp;&nbsp;&nbsp;&nbsp;this.hexCode = hexCode;
+                    <br>&nbsp;&nbsp;}<br><br>
+                    &nbsp;&nbsp;public String getHexCode() { <br>&nbsp;&nbsp;&nbsp;&nbsp;return hexCode;
+                    <br>&nbsp;&nbsp;}<br>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span class="ip">墨墨说-Java</span> · 设计模式应用
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="title-box">
+            <h2 class="main-title">场景4-5：单例与多例</h2>
+        </div>
+
+        <h3 class="sub-title">优势对比</h3>
+        <ul class="feature-list">
+            <li class="feature-item"><span class="highlight">线程安全</span>：JVM保证枚举实例唯一性</li>
+            <li class="feature-item"><span class="highlight">序列化安全</span>：无需担心反序列化创建新实例</li>
+            <li class="feature-item"><span class="highlight">防反射攻击</span>：无法通过反射创建枚举实例</li>
+        </ul>
+
+        <div class="footer">
+            <span class="ip">墨墨说-Java</span> · 设计模式应用
+        </div>
+    </div>
+
+        <!-- 场景6-8：框架交互与总结 -->
+    <div class="card">
+        <div class="title-box">
+            <h2 class="main-title">场景6-8：进阶应用</h2>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <span class="icon">6</span>
+                <span style="font-weight: 500;">类型安全的配置选项</span>
+            </div>
+            <p class="content-text">当配置参数需要限定范围时（如数据库类型、缓存策略）。</p>
+            <div class="code-block" style="font-size: 13px;">
+                public enum CacheType {<br>
+                &nbsp;&nbsp;LOCAL, REDIS, MEMCACHED<br>
+                }
+            </div>
+
+            <div style="display: flex; align-items: center; margin: 15px 0 10px;">
+                <span class="icon">7</span>
+                <span style="font-weight: 500;">与框架交互</span>
+            </div>
+            <p class="content-text">JPA、Spring等框架直接支持枚举，用于数据库字段、请求参数等。</p>
+            <div class="code-block" style="font-size: 13px;">
+                @Enumerated(EnumType.STRING)<br>
+                private UserRole role; // UserRole是枚举
+            </div>
+        </div>
+
+        <h3 class="sub-title">何时避免枚举？</h3>
+        <ul class="feature-list">
+            <li class="feature-item">常量需要动态变化时（枚举在编译时固定）</li>
+            <li class="feature-item">常量数量极大或可能频繁扩展</li>
+        </ul>
+
+        <div class="footer">
+            <span class="ip">墨墨说-Java</span> · 枚举最佳实践
+        </div>
+    </div>
+
+    <!-- 总结互动卡 -->
+    <div class="card">
+        <div class="title-box">
+            <h2 class="main-title">枚举核心优势</h2>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; margin: 15px 0;">
+            <div style="width: 50%; padding: 5px; box-sizing: border-box;">
+                <div style="background-color: rgba(255, 107, 107, 0.1); padding: 10px; border-radius: 8px; height: 100%;">
+                    <h3 style="font-size: 16px; color: #FF6B6B; margin: 0 0 5px;">类型安全</h3>
+                    <p style="font-size: 14px; margin: 0;">编译器检查，避免无效值</p>
+                </div>
+            </div>
+            <div style="width: 50%; padding: 5px; box-sizing: border-box;">
+                <div style="background-color: rgba(78, 205, 196, 0.1); padding: 10px; border-radius: 8px; height: 100%;">
+                    <h3 style="font-size: 16px; color: #4ECDC4; margin: 0 0 5px;">可读性</h3>
+                    <p style="font-size: 14px; margin: 0;">语义明确，自文档化</p>
+                </div>
+            </div>
+            <div style="width: 50%; padding: 5px; box-sizing: border-box;">
+                <div style="background-color: rgba(255, 223, 0, 0.1); padding: 10px; border-radius: 8px; height: 100%;margin-top: 20px;">
+                    <h3 style="font-size: 16px; color: #FFD700; margin: 0 0 5px;">扩展性</h3>
+                    <p style="font-size: 14px; margin: 0;">可添加方法和字段</p>
+                </div>
+            </div>
+            <div style="width: 50%; padding: 5px; box-sizing: border-box;">
+                <div style="background-color: rgba(160, 210, 219, 0.1); padding: 10px; border-radius: 8px; height: 100%;margin-top: 20px;">
+                    <h3 style="font-size: 16px; color: #A0D2DB; margin: 0 0 5px;">线程安全</h3>
+                    <p style="font-size: 14px; margin: 0;">实例由JVM保证唯一</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 15px; padding: 15px; background-color: rgba(255, 107, 107, 0.1); border-radius: 8px;margin-top: 50px;">
+            <p style="margin: 0; font-size: 15px; color: #333;">你在项目中如何使用枚举？分享你的实战案例吧！</p>
+            <p style="margin: 10px 0 0; font-size: 14px; color: #666;">点赞收藏，获取更多Java干货</p>
+        </div>
+
+        <div class="footer">
+            <span class="ip">墨墨说-Java</span> · 期待你的互动
+        </div>
+    </div>
+</div>
+</body>
+</html>

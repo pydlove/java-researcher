@@ -461,8 +461,77 @@ public class CommonProcessor {
         return sampleCounts;
     }
 
-
     public static List<List<FieldInfo>> groupBySimilarity(
+            List<FieldInfo> fieldInfos, boolean isOnlyFieldNameMatch, double similarityThreshold) {
+        return groupBySimilarityV0(fieldInfos, isOnlyFieldNameMatch, similarityThreshold);
+    }
+
+    public static List<List<FieldInfo>> groupBySimilarityV0(
+            List<FieldInfo> fieldInfos, boolean isOnlyFieldNameMatch, double similarityThreshold) {
+
+        LevenshteinDistance distance = new LevenshteinDistance();
+        List<List<FieldInfo>> groups = new ArrayList<>();
+
+        int i = 0;
+        for (FieldInfo fieldInfo : fieldInfos) {
+
+            i++;
+            String fieldName = fieldInfo.getFieldName();
+            String fieldComment = fieldInfo.getFieldComment();
+
+            // 组合要比较的字符串
+            String combined = isOnlyFieldNameMatch ? fieldName :
+                    (fieldName != null ? fieldName : "") + " " + (fieldComment != null ? fieldComment : "");
+
+            if (combined.trim().isEmpty()) {
+                continue;
+            }
+
+            boolean added = false;
+
+            log.info("field name: {}, comment: {}, index: {}", fieldName, fieldComment, i);
+
+            // 与已有分组比较
+            int j = 0;
+            for (List<FieldInfo> group : groups) {
+
+                j++;
+                String groupFieldName = group.get(0).getFieldName();
+                String groupFieldComment = group.get(0).getFieldComment();
+
+                String groupCombined = isOnlyFieldNameMatch ? groupFieldName :
+                        (groupFieldName != null ? groupFieldName : "") + " " + (groupFieldComment != null ? groupFieldComment : "");
+
+                if (groupCombined.trim().isEmpty()) {
+                    continue;
+                }
+
+                // 计算相似度
+                int maxLength = Math.max(combined.length(), groupCombined.length());
+                if (maxLength == 0) continue;
+
+                double similarity = 1 - (distance.apply(combined, groupCombined) / (double) maxLength);
+                // log.info("Similarity: {}, name: {}, comment: {}, index: {}/{}", similarity, name, comment, j, i);
+
+                if (similarity >= similarityThreshold) {
+                    group.add(fieldInfo);
+                    added = true;
+                    break;
+                }
+            }
+
+            // 如果没有匹配的组，创建新组
+            if (!added) {
+                List<FieldInfo> newGroup = new ArrayList<>();
+                newGroup.add(fieldInfo);
+                groups.add(newGroup);
+            }
+        }
+
+        return groups;
+    }
+
+    public static List<List<FieldInfo>> groupBySimilarityV2(
             List<FieldInfo> fieldInfos, boolean isOnlyFieldNameMatch, double similarityThreshold) {
 
         LevenshteinDistance distance = new LevenshteinDistance();

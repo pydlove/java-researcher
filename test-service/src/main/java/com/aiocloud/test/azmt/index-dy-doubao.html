@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说：MySQL数据存储揭秘</title>
+    <script src="https://fastly.jsdelivr.net/npm/dom-to-image-more@2.8.0/dist/dom-to-image-more.min.js"></script>
+    <style>
+        .cards-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            overflow-x: auto;
+            background-color: #f0f0f0;
+        }
+        .card {
+            width: 450px;
+            height: 600px;
+            background-color: #FAF7F0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 25px;
+            box-sizing: border-box;
+            position: relative;
+            background-image: repeating-linear-gradient(to bottom, transparent, transparent 23px, #E0E0E0 23px, #E0E0E0 24px);
+        }
+        .binder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='5' fill='%23ddd' stroke='%23bbb' stroke-width='1'/%3E%3C/svg%3E");
+            background-repeat: repeat-x;
+            background-size: 40px 20px;
+        }
+        .title-box {
+            border: 2px solid #FF6B6B;
+            border-radius: 8px;
+            padding: 5px 10px;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-family: "LXGW WenKai Bold", "Noto Sans SC Bold", sans-serif;
+            font-size: 22px;
+            color: #333;
+        }
+        .subtitle {
+            font-family: "LXGW WenKai", "Noto Sans SC", sans-serif;
+            font-size: 18px;
+            color: #4ECDC4;
+            margin: 12px 0 8px 0;
+            font-weight: 600;
+        }
+        .content {
+            font-family: "Noto Sans SC", "PingFang SC", sans-serif;
+            font-size: 16px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .highlight {
+            background-color: rgba(255, 223, 0, 0.5);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+        .code {
+            background-color: #f0f0f0;
+            padding: 8px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            margin: 8px 0;
+            overflow-x: auto;
+        }
+        .list-item {
+            margin: 8px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+        .list-item::before {
+            content: "•";
+            color: #FF6B6B;
+            position: absolute;
+            left: 5px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            font-size: 14px;
+        }
+        .table th {
+            background-color: rgba(78, 205, 196, 0.1);
+        }
+        .download-btn {
+            margin: 10px 0;
+            padding: 8px 16px;
+            background-color: #4ECDC4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: "Noto Sans SC", sans-serif;
+        }
+        .download-all-btn {
+            margin: 20px;
+            padding: 12px 24px;
+            background-color: #FF6B6B;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: "Noto Sans SC", sans-serif;
+            font-size: 16px;
+        }
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        .tag {
+            display: inline-block;
+            background-color: rgba(160, 210, 219, 0.3);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 14px;
+            margin: 3px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<div class="cards-container">
+    <!-- 卡片1：封面 -->
+    <div class="card" id="card1">
+        <div class="binder"></div>
+        <div style="text-align: center; padding-top: 100px;">
+            <div class="title-box" style="font-size: 26px;">MySQL存储揭秘</div>
+            <p style="font-size: 20px; margin: 30px 0; font-family: 'LXGW WenKai';">数据只存在硬盘里吗？</p>
+            <div style="margin: 50px 0;">
+                <span class="tag">#数据库</span>
+                <span class="tag">#MySQL</span>
+                <span class="tag">#编程干货</span>
+            </div>
+            <p style="font-size: 18px; color: #666; margin-top: 30px;">墨墨说 · 数据库小知识</p>
+            <div style="margin-top: 50px; font-size: 14px; color: #999;">👇 滑动看干货</div>
+        </div>
+    </div>
+
+    <!-- 卡片2：存储层次 -->
+    <div class="card" id="card2">
+        <div class="binder"></div>
+        <div class="title-box">MySQL的"两层楼"存储</div>
+        <div class="content">
+            MySQL不是单存硬盘，而是「内存+硬盘」混合存储哦！<span class="emoji">✨</span>
+
+            <div class="subtitle">1. 内存层（加速用）</div>
+            <div class="list-item"><span class="emoji">⚡</span>核心组件：<span class="highlight">InnoDB Buffer Pool</span>（缓存数据和索引，占内存50%-75%）</div>
+            <div class="list-item"><span class="emoji">⚠️</span>特点：速度快（比硬盘快100-1000倍），但<span class="highlight">不持久</span>（崩溃会丢）</div>
+
+            <div class="subtitle">2. 硬盘层（持久化）</div>
+            <div class="list-item"><span class="emoji">💾</span>存储文件：InnoDB的.ibd（数据+索引）、MyISAM的.MYD（数据）和.MYI（索引）</div>
+            <div class="list-item"><span class="emoji">🐢</span>特点：数据能存住，但速度慢（机械硬盘约100 IOPS，SSD快100倍）</div>
+
+            <div class="subtitle">3. 混合流程</div>
+            <div class="list-item"><span class="emoji">📥</span>读：先查内存，没有再读硬盘</div>
+            <div class="list-item"><span class="emoji">📤</span>写：先写内存，再慢慢刷到硬盘</div>
+        </div>
+    </div>
+
+    <!-- 卡片3：纯内存场景 -->
+    <div class="card" id="card3">
+        <div class="binder"></div>
+        <div class="title-box">纯内存存储？可以但有坑！</div>
+        <div class="content">
+            特殊场景下，MySQL也能全放内存里～<span class="emoji">💡</span>
+
+            <div class="subtitle">1. Memory引擎（HEAP表）</div>
+            <div class="list-item"><span class="emoji">📝</span>数据全在内存，重启就没了</div>
+            <div class="code">CREATE TABLE temp_table (id INT) ENGINE=MEMORY;</div>
+            <div class="list-item"><span class="emoji">✅</span>适合：临时表、会话缓存</div>
+
+            <div class="subtitle">2. 第三方内存引擎</div>
+            <div class="list-item"><span class="emoji">🔄</span>通过插件集成Redis、Memcached，直接访问内存数据</div>
+
+            <div class="subtitle">3. 内存文件系统（tmpfs）</div>
+            <div class="list-item"><span class="emoji">🔗</span>把MySQL数据目录挂到内存里（如/dev/shm）</div>
+            <div class="list-item" style="color: #e74c3c;"><span class="emoji">⚠️</span>风险：断电全丢，只适合测试！</div>
+        </div>
+    </div>
+
+    <!-- 卡片4：持久化与性能权衡 -->
+    <div class="card" id="card4">
+        <div class="binder"></div>
+        <div class="title-box">持久化vs性能：怎么选？</div>
+        <div class="content">
+            不同场景，存储策略大不同～<span class="emoji">📊</span>
+
+            <table class="table">
+                <tr>
+                    <th>配置/场景</th>
+                    <th>存储</th>
+                    <th>持久性</th>
+                    <th>适用场景</th>
+                </tr>
+                <tr>
+                    <td>默认InnoDB</td>
+                    <td>内存+硬盘</td>
+                    <td>高</td>
+                    <td>订单、用户数据</td>
+                </tr>
+                <tr>
+                    <td>金融交易</td>
+                    <td>硬盘优先</td>
+                    <td>最高⭐</td>
+                    <td>转账、支付</td>
+                </tr>
+                <tr>
+                    <td>高并发写入</td>
+                    <td>内存+硬盘</td>
+                    <td>中等</td>
+                    <td>秒杀、日志</td>
+                </tr>
+                <tr>
+                    <td>开发测试</td>
+                    <td>纯内存</td>
+                    <td>无</td>
+                    <td>临时数据</td>
+                </tr>
+            </table>
+
+            <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                根据业务需求选择最合适的方案哦～<span class="emoji">💡</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 卡片5：性能优化 -->
+    <div class="card" id="card5">
+        <div class="binder"></div>
+        <div class="title-box">性能优化小技巧</div>
+        <div class="content">
+            <div class="subtitle">1. 内存优化 <span class="emoji">🚀</span></div>
+            <div class="list-item">调大Buffer Pool（内存的50%-75%）</div>
+            <div class="code">innodb_buffer_pool_size = 12G</div>
+            <div class="list-item">换SSD！随机IO性能飙升</div>
+
+            <div class="subtitle">2. 减少硬盘IO <span class="emoji">🔽</span></div>
+            <div class="list-item">延迟刷盘（每秒一次）</div>
+            <div class="code">innodb_flush_log_at_trx_commit = 2</div>
+            <div class="list-item">压缩表：ROW_FORMAT=COMPRESSED</div>
+
+            <div class="subtitle">3. 分布式存储 <span class="emoji">🌐</span></div>
+            <div class="list-item">用云数据库（如AWS Aurora）自动缓存热点数据</div>
+            <div class="list-item">通过SAN/NAS实现多节点共享</div>
+        </div>
+    </div>
+
+    <!-- 卡片6：总结 -->
+    <div class="card" id="card6">
+        <div class="binder"></div>
+        <div class="title-box">划重点！一句话总结</div>
+        <div class="content">
+            <div class="list-item"><span class="emoji">✔️</span>默认是「内存+硬盘」混合存储：内存加速，硬盘存数据</div>
+            <div class="list-item"><span class="emoji">✔️</span>纯内存方案（如Memory引擎）存在，但<span class="highlight">丢数据风险高</span></div>
+            <div class="list-item"><span class="emoji">✔️</span>生产环境权衡：
+                <ul style="margin-left: 10px; margin-top: 5px;">
+                    <li>要性能 → 大内存+SSD</li>
+                    <li>要安全 → 日志实时刷盘</li>
+                    <li>临时数据 → 用Memory引擎</li>
+                </ul>
+            </div>
+
+            <div style="margin-top: 30px; padding: 10px; background-color: rgba(78, 205, 196, 0.1); border-radius: 5px;">
+                有疑问？评论区聊聊你的MySQL存储方案～<br>
+                喜欢就点赞收藏吧！<span class="emoji">❤️</span>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <span class="tag">#程序员</span>
+                <span class="tag">#数据库优化</span>
+                <span class="tag">#技术分享</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="btn-container">
+    <div>
+        <button class="download-btn" onclick="downloadCard('card1')">下载卡片1</button>
+        <button class="download-btn" onclick="downloadCard('card2')">下载卡片2</button>
+        <button class="download-btn" onclick="downloadCard('card3')">下载卡片3</button>
+        <button class="download-btn" onclick="downloadCard('card4')">下载卡片4</button>
+        <button class="download-btn" onclick="downloadCard('card5')">下载卡片5</button>
+        <button class="download-btn" onclick="downloadCard('card6')">下载卡片6</button>
+    </div>
+    <button class="download-all-btn" onclick="downloadAllCards()">一键下载所有卡片</button>
+</div>
+
+<script>
+    function downloadCard(cardId) {
+        const node = document.getElementById(cardId);
+        domtoimage.toPng(node, { quality: 1.0 })
+            .then(function (dataUrl) {
+                const link = document.createElement('a');
+                link.download = `${cardId}.png`;
+                link.href = dataUrl;
+                link.click();
+            })
+            .catch(function (error) {
+                console.error('下载失败:', error);
+            });
+    }
+
+    function downloadAllCards() {
+        const cardIds = ['card1', 'card2', 'card3', 'card4', 'card5', 'card6'];
+        // 等待1秒后开始下载
+        setTimeout(() => {
+            cardIds.forEach((id, index) => {
+                // 每张卡片间隔300ms下载，避免冲突
+                setTimeout(() => {
+                    downloadCard(id);
+                }, index * 300);
+            });
+        }, 1000);
+    }
+</script>
+</body>
+</html>

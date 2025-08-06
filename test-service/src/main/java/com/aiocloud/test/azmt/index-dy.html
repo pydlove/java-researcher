@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说MySQL存储机制</title>
+    <script src="https://fastly.jsdelivr.net/npm/dom-to-image-more@2.8.0/dist/dom-to-image-more.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 0;
+        }
+
+        .cards-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .card {
+            width: 450px; /* 严格固定宽度 */
+            min-width: 450px; /* 防止压缩 */
+            height: 600px;
+            background-color: #FAF7F0;
+            padding: 25px;
+            box-sizing: border-box;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0; /* 防止卡片缩小 */
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="5" fill="%23FF6B6B" opacity="0.5"/></svg>');
+            background-repeat: repeat-x;
+            background-position: center;
+            opacity: 0.3;
+        }
+
+        .lined-bg {
+            background-image: repeating-linear-gradient(to bottom, rgba(224,224,224,0.3), rgba(224,224,224,0.3) 1px, transparent 1px, transparent 24px);
+        }
+
+        .title-box {
+            border: 2px solid #FF6B6B;
+            border-radius: 8px;
+            padding: 8px 15px;
+            display: inline-block;
+            margin-bottom: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .main-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin: 0;
+        }
+
+        .sub-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: #4ECDC4;
+            margin: 15px 0 10px;
+            border-left: 4px solid #4ECDC4;
+            padding-left: 10px;
+        }
+
+        .content {
+            flex: 1;
+            overflow: hidden;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .highlight {
+            background-color: rgba(255, 223, 0, 0.5);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+
+        .list {
+            padding-left: 20px;
+        }
+
+        .list li {
+            margin-bottom: 8px;
+        }
+
+        .icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: #FF6B6B;
+            border-radius: 50%;
+            color: white;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-top: 10px;
+        }
+
+        .download-btn {
+            margin-top: 10px;
+            padding: 8px 15px;
+            background-color: #FF6B6B;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .download-all {
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4ECDC4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-weight: 500;
+            display: block;
+        }
+
+        .card-cover {
+            background-color: #E0F7FA;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .cover-icon {
+            font-size: 60px;
+            color: #FF6B6B;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: #4ECDC4;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin: 0 5px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: rgba(78, 205, 196, 0.2);
+        }
+
+        .code {
+            font-family: monospace;
+            background-color: rgba(0,0,0,0.05);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="cards-container">
+    <!-- 卡片1：封面 -->
+    <div class="card card-cover" id="card1">
+        <div>
+            <div class="cover-icon">📊</div>
+            <div class="title-box">
+                <h1 class="main-title">MySQL存储揭秘</h1>
+            </div>
+            <p>内存与硬盘的完美协作</p>
+            <div style="margin-top: 20px;">
+                <span class="tag">数据库</span>
+                <span class="tag">性能优化</span>
+                <span class="tag">存储引擎</span>
+            </div>
+        </div>
+        <div class="footer">墨墨说技术系列 · 第15期</div>
+    </div>
+
+    <!-- 卡片2：存储层次 -->
+    <div class="card lined-bg" id="card2">
+        <div class="title-box">
+            <h2 class="main-title">MySQL的存储层次</h2>
+        </div>
+        <div class="content">
+            <h3 class="sub-title">1. 内存（Memory-Based）</h3>
+            <p><span class="highlight">高频访问数据的缓存</span>，加速读写</p>
+            <p><strong>核心组件：</strong></p>
+            <ul class="list">
+                <li><span class="icon">1</span><strong>InnoDB Buffer Pool</strong>：缓存表数据、索引（默认占物理内存的50%~75%）</li>
+                <li><span class="icon">2</span><strong>MyISAM Key Buffer</strong>：仅缓存索引（MyISAM引擎）</li>
+                <li><span class="icon">3</span><strong>查询缓存</strong>：缓存完整查询结果（MySQL 8.0已移除）</li>
+            </ul>
+
+            <h3 class="sub-title">2. 硬盘（Disk-Based）</h3>
+            <p><span class="highlight">持久化存储数据</span>，保证可靠性</p>
+            <p><strong>存储文件：</strong></p>
+            <ul class="list">
+                <li><span class="icon">A</span><strong>InnoDB</strong>：.ibd（数据+索引）、ibdata1（系统表空间）</li>
+                <li><span class="icon">B</span><strong>MyISAM</strong>：.MYD（数据）、.MYI（索引）</li>
+            </ul>
+        </div>
+        <div class="footer">墨墨说 · 数据库小知识</div>
+    </div>
+
+    <!-- 卡片3：特殊场景 -->
+    <div class="card lined-bg" id="card3">
+        <div class="title-box">
+            <h2 class="main-title">特殊场景：纯内存存储</h2>
+        </div>
+        <div class="content">
+            <h3 class="sub-title">1. Memory引擎（HEAP表）</h3>
+            <p><span class="highlight">特点：</span></p>
+            <ul class="list">
+                <li>数据完全存储在内存，重启后丢失</li>
+                <li>适用于临时表、高速缓存</li>
+            </ul>
+            <p><span class="highlight">示例：</span></p>
+            <div class="code">CREATE TABLE temp_table (id INT) ENGINE=MEMORY;</div>
+
+            <h3 class="sub-title">2. 第三方内存引擎</h3>
+            <ul class="list">
+                <li><strong>Redis</strong>：通过MySQL插件将数据映射到Redis</li>
+                <li><strong>Memcached</strong>：通过InnoDB Memcached Plugin直接访问内存数据</li>
+            </ul>
+
+            <h3 class="sub-title">3. 内存文件系统（RAM Disk）</h3>
+            <ul class="list">
+                <li>方法：将MySQL数据目录挂载到/dev/shm或tmpfs</li>
+                <li><span class="highlight">风险</span>：服务器断电后数据全丢，仅用于测试</li>
+            </ul>
+        </div>
+        <div class="footer">墨墨说 · 技术干货</div>
+    </div>
+
+    <!-- 卡片4：持久化与性能权衡 -->
+    <div class="card lined-bg" id="card4">
+        <div class="title-box">
+            <h2 class="main-title">持久化与性能的权衡</h2>
+        </div>
+        <div class="content">
+            <table class="table">
+                <tr>
+                    <th>配置/场景</th>
+                    <th>存储介质</th>
+                    <th>持久性</th>
+                    <th>适用场景</th>
+                </tr>
+                <tr>
+                    <td>默认InnoDB配置</td>
+                    <td>内存+硬盘</td>
+                    <td>高</td>
+                    <td>通用业务（如订单、用户）</td>
+                </tr>
+                <tr>
+                    <td>innodb_flush_log_at_trx_commit=1</td>
+                    <td>硬盘</td>
+                    <td>最高</td>
+                    <td>金融交易（强一致性）</td>
+                </tr>
+                <tr>
+                    <td>innodb_flush_log_at_trx_commit=2</td>
+                    <td>内存+硬盘</td>
+                    <td>中等</td>
+                    <td>高并发写入（性能优先）</td>
+                </tr>
+                <tr>
+                    <td>Memory引擎</td>
+                    <td>内存</td>
+                    <td>无</td>
+                    <td>临时数据、会话缓存</td>
+                </tr>
+                <tr>
+                    <td>挂载tmpfs</td>
+                    <td>内存</td>
+                    <td>无</td>
+                    <td>开发测试环境</td>
+                </tr>
+            </table>
+
+            <h3 class="sub-title">混合存储流程</h3>
+            <p><strong>写入流程：</strong></p>
+            <p>内存(Buffer Pool) → 日志(Redo Log) → 硬盘(数据文件)</p>
+            <p><strong>读取流程：</strong></p>
+            <p>优先从内存读取，未命中时从硬盘加载</p>
+        </div>
+        <div class="footer">墨墨说 · 数据库配置指南</div>
+    </div>
+
+    <!-- 卡片5：优化建议 -->
+    <div class="card lined-bg" id="card5">
+        <div class="title-box">
+            <h2 class="main-title">如何优化存储性能？</h2>
+        </div>
+        <div class="content">
+            <h3 class="sub-title">1. 内存优化</h3>
+            <p><span class="icon">↑</span><strong>调大Buffer Pool：</strong></p>
+            <div class="code">innodb_buffer_pool_size = 12G  # 建议为物理内存的50%~75%</div>
+            <p><span class="icon">⚡</span><strong>使用SSD：</strong>替换机械硬盘，提升随机IO性能</p>
+
+            <h3 class="sub-title">2. 减少硬盘IO</h3>
+            <p><span class="icon">⏱</span><strong>延迟刷盘：</strong></p>
+            <div class="code">
+                innodb_flush_log_at_trx_commit = 2  # 每秒刷一次日志<br>
+                sync_binlog = 0                     # 禁用binlog实时刷盘
+            </div>
+            <p><span class="icon">🗜</span><strong>压缩表：</strong></p>
+            <div class="code">CREATE TABLE compressed_table (id INT) ROW_FORMAT=COMPRESSED;</div>
+
+            <h3 class="sub-title">3. 分布式存储</h3>
+            <ul class="list">
+                <li><strong>云数据库</strong>：如AWS Aurora，数据存储在分布式存储层，自动缓存热点数据</li>
+                <li><strong>共享存储</strong>：通过SAN/NAS实现多节点共享数据</li>
+            </ul>
+        </div>
+        <div class="footer">墨墨说 · 性能优化小贴士</div>
+    </div>
+
+    <!-- 卡片6：总结 -->
+    <div class="card lined-bg" id="card6">
+        <div class="title-box">
+            <h2 class="main-title">MySQL存储机制总结</h2>
+        </div>
+        <div class="content">
+            <div style="text-align: center; margin: 20px 0;">
+                <span style="font-size: 50px;">📌</span>
+            </div>
+            <ul class="list" style="font-size: 18px;">
+                <li><span class="highlight">MySQL默认是内存+硬盘混合存储</span>，内存用于加速，硬盘用于持久化</li>
+                <li>纯内存方案存在（如Memory引擎），但<span class="highlight">牺牲了持久性</span></li>
+                <li>生产环境需权衡：
+                    <ul>
+                        <li>要求高性能 → 增大内存缓存、使用SSD</li>
+                        <li>要求持久化 → 确保日志实时刷盘</li>
+                        <li>临时数据 → Memory引擎或Redis集成</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <p>关注<span style="color: #FF6B6B;">@墨墨说技术</span>获取更多干货</p>
+                <div>
+                    <span class="tag">#数据库</span>
+                    <span class="tag">#MySQL</span>
+                    <span class="tag">#性能优化</span>
+                </div>
+            </div>
+        </div>
+        <div class="footer">墨墨说 · 下期预告：索引优化技巧</div>
+    </div>
+</div>
+
+<div style="text-align: center; margin-top: 20px;">
+    <button class="download-all" onclick="downloadAll()">一键下载所有图片</button>
+</div>
+
+<script>
+    // 为每张卡片创建下载按钮
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        const btnContainer = document.createElement('div');
+        btnContainer.style.textAlign = 'center';
+        btnContainer.style.marginTop = '10px';
+
+        const btn = document.createElement('button');
+        btn.className = 'download-btn';
+        btn.textContent = `下载卡片 ${index + 1}`;
+        btn.onclick = () => downloadCard(card.id);
+
+        btnContainer.appendChild(btn);
+        card.parentNode.insertBefore(btnContainer, card.nextSibling);
+    });
+
+    // 下载单张卡片
+    function downloadCard(cardId) {
+        const node = document.getElementById(cardId);
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+
+        domtoimage.toPng(node, {
+            quality: 1,
+            bgcolor: '#FAF7F0',
+            width: 450, // 明确指定宽度
+            height: 600 // 明确指定高度
+        })
+            .then(function (dataUrl) {
+                const link = document.createElement('a');
+                link.download = `墨墨说-MySQL存储-${cardId}-${timestamp}.png`;
+                link.href = dataUrl;
+                link.click();
+            })
+            .catch(function (error) {
+                console.error('生成图片出错:', error);
+            });
+    }
+
+    // 下载所有卡片
+    function downloadAll() {
+        setTimeout(() => {
+            const cards = document.querySelectorAll('.card');
+            let delay = 0;
+
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                    domtoimage.toPng(card, {
+                        quality: 1,
+                        bgcolor: '#FAF7F0',
+                        width: 450, // 明确指定宽度
+                        height: 600 // 明确指定高度
+                    })
+                        .then(function (dataUrl) {
+                            const link = document.createElement('a');
+                            link.download = `墨墨说-MySQL存储-${card.id}-${timestamp}.png`;
+                            link.href = dataUrl;
+                            link.click();
+                        })
+                        .catch(function (error) {
+                            console.error('生成图片出错:', error);
+                        });
+                }, delay);
+
+                delay += 1000; // 每张卡片间隔1秒下载
+            });
+        }, 1000); // 等待1秒让所有内容加载完成
+    }
+</script>
+</body>
+</html>

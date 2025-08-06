@@ -38,7 +38,7 @@ public class BaseProcessor {
 
     public List<List<FieldInfo>> doGrouping(List<FieldInfo> fieldInfos, int targetNum) {
 
-        int targetCount = targetNum / 10;
+        int targetCount = Math.max(1, targetNum / 10);
 
         // 按相似度分组
         List<List<FieldInfo>> similarityGroups = CommonProcessor.groupBySimilarity(fieldInfos, isOnlyFieldNameMatch, similarityThreshold);

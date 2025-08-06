@@ -1,6 +1,9 @@
 package com.aiocloud.test.excel.main;
 
+import cn.hutool.core.collection.CollUtil;
+import com.aiocloud.test.excel.base.DatasetInfo;
 import com.aiocloud.test.excel.base.FieldInfo;
+import com.aiocloud.test.excel.base.FieldInfoSimilarity;
 import com.aiocloud.test.excel.base.PredictInfo;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +43,7 @@ public class PredictHandler extends BaseProcessor {
     public int total;
 
     public static final String RESULT_SHEET_NAME = "智能分类测试结果明细";
+    public static final String DATASET_SHEET_NAME = "数据集";
     public static final int PREDICT_SEQ = SEQ + 1;
 
     public static void main(String[] args) throws Exception {
@@ -59,11 +63,16 @@ public class PredictHandler extends BaseProcessor {
 
     public static void doPredict(String originFileName, int targetNum) throws Exception {
 
-        String inputFilePath = CommonProcessor.BASE_PATH + "predict" +
+        doPredictV2(originFileName, targetNum, null);
+    }
+
+    public static void doPredictV2(String originFileName, int targetNum, List<String> trainFileList) throws Exception {
+
+        String predictFilePath = CommonProcessor.BASE_PATH + "predict" +
                 File.separator + originFileName + ".xlsx";
 
         PredictHandler predictHandler = new PredictHandler();
-        predictHandler.init(inputFilePath, RESULT_SHEET_NAME);
+        predictHandler.init(predictFilePath, RESULT_SHEET_NAME);
 
         DatasetHandler datasetHandler = new DatasetHandler();
 
@@ -75,6 +84,27 @@ public class PredictHandler extends BaseProcessor {
         List<FieldInfo> hasResultFieldList = new ArrayList<>();
         for (PredictInfo predictInfo : predictHandler.getHasResultList()) {
             hasResultFieldList.add(predictHandler.conver2FieldInfo(predictInfo));
+        }
+
+        List<FieldInfo> allFieldList = new ArrayList<>();
+        allFieldList.addAll(noResultFieldList);
+        allFieldList.addAll(hasResultFieldList);
+
+        // 要先剔除与之前训练集相似的数据，然后再分组
+        if (CollUtil.isNotEmpty(trainFileList)) {
+
+            List<DatasetInfo> trainFieldList = new ArrayList<>();
+            for (String trainFile : trainFileList) {
+
+                String trainFilePath = CommonProcessor.BASE_PATH +
+                        "train" + File.separator +
+                        "target" + File.separator + trainFile;
+
+                List<DatasetInfo> datasetInfoList = DatasetHandler.readDatasetList(trainFilePath, DATASET_SHEET_NAME);
+                trainFieldList.addAll(datasetInfoList);
+            }
+
+            hasResultFieldList = FieldInfoSimilarity.filterSimilarFields(trainFieldList, hasResultFieldList, 0.7);
         }
 
         int noResultFieldNum = noResultFieldList.size() * targetNum / predictHandler.getTotal();
@@ -93,10 +123,6 @@ public class PredictHandler extends BaseProcessor {
         hasResultSamplingFieldList.addAll(noResultSamplingFieldList);
 
         // 测试集
-        List<FieldInfo> allFieldList = new ArrayList<>();
-        allFieldList.addAll(noResultFieldList);
-        allFieldList.addAll(hasResultFieldList);
-
         Map<String, String> trainFieldMap = new HashMap<>();
         for (FieldInfo fieldInfo : hasResultSamplingFieldList) {
             trainFieldMap.put(fieldInfo.getFieldId(), fieldInfo.getFieldName());

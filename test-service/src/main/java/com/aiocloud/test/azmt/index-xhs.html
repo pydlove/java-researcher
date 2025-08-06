@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说：数据库幂等控制</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://fastly.jsdelivr.net/npm/dom-to-image-more@2.8.0/dist/dom-to-image-more.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .cards-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .card {
+            width: 450px;
+            height: 800px;
+            background-color: #FAF7F0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: repeating-linear-gradient(to right, #E0E0E0, #E0E0E0 10px, transparent 10px, transparent 20px);
+        }
+
+        .lined-bg {
+            background-image: repeating-linear-gradient(to bottom, rgba(224, 224, 224, 0.3), rgba(224, 224, 224, 0.3) 1px, transparent 1px, transparent 24px);
+            background-color: #FAF7F0;
+        }
+
+        .title-box {
+            border: 2px solid #FF6B6B;
+            border-radius: 8px;
+            padding: 8px 15px;
+            display: inline-block;
+            margin-bottom: 20px;
+            background-color: white;
+        }
+
+        .title-text {
+            font-weight: 700;
+            font-size: 24px;
+            color: #333;
+            margin: 0;
+        }
+
+        .highlight {
+            background-color: rgba(255, 223, 0, 0.5);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+
+        .subtitle {
+            color: #4ECDC4;
+            font-weight: 500;
+            font-size: 18px;
+            margin: 15px 0 10px;
+        }
+
+        .content-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .bullet-point {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .bullet {
+            width: 8px;
+            height: 8px;
+            background-color: #FF6B6B;
+            border-radius: 50%;
+            margin-right: 10px;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+
+        .bullet-text {
+            flex: 1;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 30px;
+            right: 30px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+        }
+
+        .download-btn {
+            background-color: #4ECDC4;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+
+        .download-btn:hover {
+            background-color: #3ab7ae;
+        }
+
+        .download-all-btn {
+            background-color: #FF6B6B;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.2s;
+        }
+
+        .download-all-btn:hover {
+            background-color: #e55a5a;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: rgba(78, 205, 196, 0.2);
+            color: #4ECDC4;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .solution-item {
+            background-color: rgba(255, 107, 107, 0.1);
+            border-left: 3px solid #FF6B6B;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 0 4px 4px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="cards-container">
+    <!-- 卡片1：封面卡 -->
+    <div class="card lined-bg" id="card1">
+        <div style="text-align: center; margin-top: 50px;">
+            <div class="title-box">
+                <h1 class="title-text">为什么不建议用数据库唯一性约束做幂等控制？</h1>
+            </div>
+            <img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" alt="数据库图标" style="width: 120px; height: 120px; margin: 30px auto;">
+            <p class="content-text" style="font-size: 18px; color: #666; margin-top: 20px;">Java开发中的幂等控制最佳实践</p>
+            <div style="margin-top: 40px;">
+                <span class="tag">#Java开发</span>
+                <span class="tag">#幂等性</span>
+                <span class="tag">#数据库优化</span>
+                <span class="tag">#分布式系统</span>
+            </div>
+        </div>
+        <div class="footer">
+            <p>墨墨说技术 · 干货分享</p>
+        </div>
+    </div>
+
+    <!-- 卡片2：性能瓶颈 -->
+    <div class="card lined-bg" id="card2">
+        <div class="title-box">
+            <h1 class="title-text">1. 性能瓶颈问题</h1>
+        </div>
+
+        <div class="bullet-point">
+            <div class="bullet"></div>
+            <div class="bullet-text">
+                <p class="content-text"><span class="highlight">高频请求下</span>，数据库唯一性校验（如唯一索引）会引发大量锁竞争</p>
+            </div>
+        </div>
+
+        <div class="bullet-point">
+            <div class="bullet"></div>
+            <div class="bullet-text">
+                <p class="content-text">在<span class="highlight">分布式系统</span>中可能成为性能瓶颈</p>
+            </div>
+        </div>
+
+        <div class="bullet-point">
+            <div class="bullet"></div>
+            <div class="bullet-text">
+                <p class="content-text">相比<span class="highlight">内存级</span>或<span class="highlight">Redis</span>的幂等控制，数据库操作开销更大</p>
+            </div>
+        </div>
+
+        <img src="https://cdn-icons-png.flaticon.com/512/3953/3953316.png" alt="性能图表" style="width: 200px; display: block; margin: 30px auto;">
+
+        <p class="content-text" style="color: #FF6B6B; font-weight: 500;">数据库唯一性约束在高并发场景下会成为系统瓶颈，影响整体吞吐量。</p>
+    </div>
+
+    <!-- 卡片3：错误处理与灵活性 -->
+    <div class="card lined-bg" id="card3">
+        <div class="title-box">
+            <h1 class="title-text">2. 错误处理 & 灵活性</h1>
+        </div>
+
+        <h2 class="subtitle">错误处理复杂</h2>
+        <div class="bullet-point">
+            <div class="bullet"></div>
+            <div class="bullet-text">
+                <p class="content-text">违反约束会直接抛出<span class="highlight">SQL异常</span>（如DuplicateKeyException）</p>
+            </div>
+        </div>
+        <div class="bullet-point">
+            <div class="bullet"></div>
+            <div class="bullet-text">
+                <p class="content-text">需额外代码捕获并转换为<span class="highlight">业务友好的提示</span></p>
+            </div>
+        </div>
+
+        <h2 class="subtitle">灵活性不足</h2>
+        <div class="bullet-point">
+            <div class="bullet"></div>
+            <div class="bullet-text">
+                <p class="content-text">唯一约束通常基于<span class="highlight">固定字段</span>（如订单号）</p>
+            </div>
+        </div>
+        <div class="bullet-point">
+            <div class="bullet"></div>
+            <div class="bullet-text">
+                <p class="content-text">实际业务可能需要<span class="highlight">组合条件</span>（如用户+操作类型+参数哈希）</p>
+            </div>
+        </div>
+
+        <div style="background-color: rgba(255, 107, 107, 0.1); padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <p class="content-text" style="color: #FF6B6B; font-weight: 500;">数据库层面难以支持动态规则，而代码层可通过唯一请求ID或业务键灵活实现。</p>
+        </div>
+    </div>
+
+    <!-- 卡片4：事务与分布式问题 -->
+    <div class="card lined-bg" id="card4">
+        <div class="title-box">
+            <h1 class="title-text">3. 事务 & 分布式问题</h1>
+        </div>
+
+        <h2 class="subtitle">事务代价高</h2>
+        <div class="bullet-point">
+            <div class="bullet"></div>
+            <div class="bullet-text">
+                <p class="content-text">若幂等校验与其他写操作在同一个事务中，失败会导致<span class="highlight">整体回滚</span></p>
+            </div>
+        </div>
+        <div class="bullet-point">
+            <div class="bullet"></div>
+            <div class="bullet-text">
+                <p class="content-text">独立幂等服务可拆分事务边界，例如先记录请求ID再处理业务</p>
+            </div>
+        </div>
+
+        <h2 class="subtitle">分布式场景局限</h2>
+        <div class="bullet-point">
+            <div class="bullet"></div>
+            <div class="bullet-text">
+                <p class="content-text">分库分表时，唯一约束可能失效（如仅<span class="highlight">分片内唯一</span>）</p>
+            </div>
+        </div>
+        <div class="bullet-point">
+            <div class="bullet"></div>
+            <div class="bullet-text">
+                <p class="content-text">需依赖<span class="highlight">分布式锁</span>或全局存储（如Redis）实现跨节点幂等</p>
+            </div>
+        </div>
+
+        <img src="https://cdn-icons-png.flaticon.com/512/3603/3603806.png" alt="分布式系统" style="width: 150px; display: block; margin: 20px auto;">
+
+        <p class="content-text" style="text-align: center; color: #4ECDC4; font-weight: 500;">分布式系统中，数据库唯一约束往往无法满足全局幂等性需求。</p>
+    </div>
+
+    <!-- 卡片5：推荐替代方案 -->
+    <div class="card lined-bg" id="card5">
+        <div class="title-box">
+            <h1 class="title-text">推荐替代方案</h1>
+        </div>
+
+        <div class="solution-item">
+            <p class="content-text" style="font-weight: 500;">预生成唯一请求ID</p>
+            <p class="content-text" style="color: #666; font-size: 14px;">（如雪花ID，客户端携带该ID）</p>
+        </div>
+
+        <div class="solution-item">
+            <p class="content-text" style="font-weight: 500;">使用Redis原子操作</p>
+            <p class="content-text" style="color: #666; font-size: 14px;">（如SETNX key request_id EX 3600）</p>
+        </div>
+
+        <div class="solution-item">
+            <p class="content-text" style="font-weight: 500;">状态机设计</p>
+            <p class="content-text" style="color: #666; font-size: 14px;">（如订单状态变更时校验前置状态）</p>
+        </div>
+
+        <div class="solution-item">
+            <p class="content-text" style="font-weight: 500;">短时间窗口内的请求参数去重</p>
+            <p class="content-text" style="color: #666; font-size: 14px;">（如参数MD5+时间戳缓存）</p>
+        </div>
+
+        <div style="background-color: rgba(78, 205, 196, 0.2); padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <p class="content-text" style="color: #4ECDC4; font-weight: 500;">这些方案在Java生态中可通过Spring AOP、自定义注解等优雅实现，兼顾性能与可维护性。</p>
+        </div>
+
+        <div class="footer">
+            <p>关注@墨墨说技术 获取更多干货</p>
+        </div>
+    </div>
+</div>
+
+<div style="text-align: center; margin-top: 20px;">
+    <button class="download-btn" onclick="downloadCard('card1')">下载卡片1</button>
+    <button class="download-btn" onclick="downloadCard('card2')">下载卡片2</button>
+    <button class="download-btn" onclick="downloadCard('card3')">下载卡片3</button>
+    <button class="download-btn" onclick="downloadCard('card4')">下载卡片4</button>
+    <button class="download-btn" onclick="downloadCard('card5')">下载卡片5</button>
+</div>
+
+<button class="download-all-btn" onclick="downloadAllCards()">一键下载所有卡片</button>
+
+<script>
+    function downloadCard(cardId) {
+        const card = document.getElementById(cardId);
+        const scale = 2; // 提高图片质量
+
+        domtoimage.toPng(card, {
+            width: card.offsetWidth * scale,
+            height: card.offsetHeight * scale,
+            style: {
+                transform: 'scale(' + scale + ')',
+                transformOrigin: 'top left',
+                width: card.offsetWidth + 'px',
+                height: card.offsetHeight + 'px'
+            },
+            quality: 1.0
+        })
+            .then(function (dataUrl) {
+                const link = document.createElement('a');
+                link.download = '墨墨说-' + cardId + '.png';
+                link.href = dataUrl;
+                link.click();
+            })
+            .catch(function (error) {
+                console.error('生成图片出错:', error);
+            });
+    }
+
+    function downloadAllCards() {
+        setTimeout(function() {
+            const cardIds = ['card1', 'card2', 'card3', 'card4', 'card5'];
+            cardIds.forEach(function(cardId, index) {
+                setTimeout(function() {
+                    downloadCard(cardId);
+                }, index * 1000); // 间隔1秒下载每张卡片
+            });
+        }, 1000); // 等待1秒让图片充分加载
+    }
+</script>
+</body>
+</html>
