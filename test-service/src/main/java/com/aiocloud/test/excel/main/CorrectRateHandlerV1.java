@@ -38,7 +38,7 @@ public class CorrectRateHandlerV1 {
                 400, 12553
         );
 
-        // 49 base + 400 bussiness
+        // 49 base + 600 bussiness
         // top1Accuracy: 70.48%, top5Accuracy: 79.36%, top1FinalAccuracy: 63.89%, top5FinalAccuracy: 71.94%
         calculateCorrectRate(
                 4114, 4484,
@@ -46,7 +46,7 @@ public class CorrectRateHandlerV1 {
                 600, 12353
         );
 
-        // 49 base + 400 bussiness
+        // 49 base + 800 bussiness
         // top1Accuracy: 71.19%, top5Accuracy: 80.83%, top1FinalAccuracy: 66.03%, top5FinalAccuracy: 74.97%
         calculateCorrectRate(
                 4114, 4484,
@@ -191,7 +191,7 @@ public class CorrectRateHandlerV1 {
 
         int top1CorrectCount = essentialFieldCorrectCount + businessFieldTop1CorrectCount + trainCount;
 
-        int total = businessFieldTotal + essentialFieldTotal + trainCount;
+        int total = businessFieldTotal + essentialFieldTotal;
         int businessFieldHasResultTotal = total - businessNoResultCount;
 
         int top5CorrectCount = businessFieldHasResultTotal - businessFieldErrorCount;

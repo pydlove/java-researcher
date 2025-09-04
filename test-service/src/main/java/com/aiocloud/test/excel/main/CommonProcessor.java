@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -362,11 +361,14 @@ public class CommonProcessor {
         }
     }
 
-    public static int[] calcEachGroupSampleNum(List<List<FieldInfo>> deduplicateNormalGroups, int targetNum) {
+    public static int[] calcEachGroupSampleNum(List<List<FieldInfo>> businessGroups, int targetNum) {
+
+        List<List<FieldInfo>> deduplicateNormalGroups = CommonProcessor.deduplicateGroups(businessGroups);
+        log.info("deduplicateGroups start, tempNormalGroups size: {}", deduplicateNormalGroups.size());
 
         // 先统计每个组的原始数据大小
-        int[] rawGroupSizes = deduplicateNormalGroups.stream()
-                .mapToInt(group -> group.size())
+        int[] rawGroupSizes = businessGroups.stream()
+                .mapToInt(List::size)
                 .toArray();
 
         return calcEachGroupSampleNumWithRawSize(deduplicateNormalGroups, rawGroupSizes, targetNum, 0.8, 0.2);
@@ -423,15 +425,23 @@ public class CommonProcessor {
         if (diff > 0) {
             // 优先给前 10% 的组增加样本（高权重组）
             int topN = Math.max(1, groupCount / 10); // 至少一个组
-            while (diff > 0) {
-                boolean allocated = false;
-                for (int i = 0; i < topN && diff > 0; i++) {
+            // 确保topN不超过sampleCounts数组的实际长度
+            topN = Math.min(topN, sampleCounts.length);
+
+            // 批量分配样本，提高性能
+            while (diff > 0 && topN > 0) {
+                // 计算本轮可以分配的样本数（不能超过diff，也不能超过组数）
+                int allocatable = Math.min(diff, topN);
+
+                // 批量给前topN个组分配样本
+                for (int i = 0; i < allocatable; i++) {
                     sampleCounts[i]++;
-                    diff--;
-                    allocated = true;
                 }
-                if (!allocated) break; // 没有更多可分配的组
+
+                // 更新剩余需要分配的样本数
+                diff -= allocatable;
             }
+
         } else if (diff < 0) {
             // 从后半部分开始削减，至少保留 1 个
             int startFrom = groupCount / 2; // 从后半部分开始削减

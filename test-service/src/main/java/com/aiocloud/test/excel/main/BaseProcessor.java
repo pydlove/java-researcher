@@ -76,10 +76,7 @@ public class BaseProcessor {
 
     public List<FieldInfo> doSampling(List<List<FieldInfo>> businessGroups, int businessTargetNum) {
 
-        List<List<FieldInfo>> deduplicateNormalGroups = CommonProcessor.deduplicateGroups(businessGroups);
-        log.info("deduplicateGroups start, tempNormalGroups size: {}", deduplicateNormalGroups.size());
-
-        int[] sampleCounts = CommonProcessor.calcEachGroupSampleNum(deduplicateNormalGroups, businessTargetNum);
+        int[] sampleCounts = CommonProcessor.calcEachGroupSampleNum(businessGroups, businessTargetNum);
         log.info("calcEachGroupSampleNum finish, sampleCounts: {}", sampleCounts.length);
 
         // 抽样

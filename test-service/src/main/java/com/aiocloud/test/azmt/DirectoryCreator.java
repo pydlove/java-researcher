@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 public class DirectoryCreator {
     public static void main(String[] args) throws IOException {
         // 父目录路径（根据你的需求修改）
-        String parentDirectoryPath = "D:\\aiocloud\\AI 自媒体";
+        String parentDirectoryPath = "D:\\aiocloud\\AI 自媒体\\202508011";
 
         // 创建父目录对象
         File parentDirectory = new File(parentDirectoryPath);
@@ -26,9 +26,9 @@ public class DirectoryCreator {
         for (int i = 1; i < 20; i++) {
             String dirName;
             if(i < 10) {
-                dirName = "20250806-0" + i;
+                dirName = "202508011-0" + i;
             } else {
-                dirName = "20250806-" + i;
+                dirName = "202508011-" + i;
             }
 
             File subDir = new File(parentDirectory, dirName);

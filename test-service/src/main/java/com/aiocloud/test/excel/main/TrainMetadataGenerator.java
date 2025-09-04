@@ -70,24 +70,20 @@ public class TrainMetadataGenerator extends BaseProcessor {
         baseProcessor.setOutFilePath(outFilePath);
 
         List<FieldInfo> metadataFieldList = baseProcessor.readMetadata(metadataFilePath, METADATA_SHEET_NAME);
-        List<List<FieldInfo>> fixedGroups = baseProcessor.doGrouping(metadataFieldList, targetNum);
 
         List<FieldInfo> essentialRows = new ArrayList<>();
-        List<List<FieldInfo>> businessGroups = new ArrayList<>();
-
-        for (List<FieldInfo> group : fixedGroups) {
+        List<FieldInfo> businessRows = new ArrayList<>();
+        for (FieldInfo fieldInfo : metadataFieldList) {
 
             List<FieldInfo> normalList = new ArrayList<>();
-            for (FieldInfo fieldInfo : group) {
-                if ("是".equals(fieldInfo.getEssentialField())) {
-                    essentialRows.add(fieldInfo);
-                } else {
-                    normalList.add(fieldInfo);
-                }
+            if ("是".equals(fieldInfo.getEssentialField())) {
+                essentialRows.add(fieldInfo);
+            } else {
+                businessRows.add(fieldInfo);
             }
-
-            businessGroups.add(normalList);
         }
+
+        List<List<FieldInfo>> businessGroups = baseProcessor.doGrouping(businessRows, targetNum);
 
         List<FieldInfo> essentialSelectRows = CommonProcessor.deduplicateRows(essentialRows);
         log.info("deduplicateGroups finish, essentialRows size: {}", essentialSelectRows.size());

@@ -27,5 +27,6 @@
         <module>sharding-sphere</module>
         <module>distributed-transaction</module>
         <module>distributed-transaction/atomikos-2PC</module>
+        <module>tagger</module>
     </modules>
 </project>

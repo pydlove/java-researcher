@@ -33,6 +33,8 @@
     <file url="file://$PROJECT_DIR$/spring-cloud/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tagger/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tagger/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/test-service/src/main/java" charset="UTF-8" />
   </component>
 </project>

@@ -27,7 +27,7 @@ public class PipelineGenerator {
 //    public static final int VERSION = 5;
 
     public static final int SEQ = 1;
-    public static final int VERSION = 10;
+    public static final int VERSION = 11;
     public static final String METADATA_SHEET_NAME = "字段核验信息";
 
     public static void main(String[] args) throws Exception {

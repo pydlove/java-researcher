@@ -3,79 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>墨墨说-Java：枚举使用场景</title>
+    <title>布隆过滤器内存计算器</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+XiaoWei&display=swap');
-
         body {
-            font-family: 'Noto Sans SC', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #F0F8FF;
+            color: #333333;
             display: flex;
-            overflow-x: auto;
-        }
-
-        .card-container {
-            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 20px;
+            padding: 20px;
+            margin: 0;
         }
 
         .card {
             width: 450px;
             height: 600px;
-            background-color: #FAF7F0;
-            background-image: repeating-linear-gradient(to bottom, rgba(224,224,224,0.3), rgba(224,224,224,0.3) 1px, transparent 1px, transparent 24px);
+            background-color: white;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 25px;
-            box-sizing: border-box;
-            flex-shrink: 0;
-            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-decoration {
+            height: 20px;
+            background: linear-gradient(90deg, #FF9A8B, #FF6B6B, #FF8E53);
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+        }
+
+        .ring {
+            width: 12px;
+            height: 12px;
+            background-color: #fff;
+            border-radius: 50%;
+            margin-top: 4px;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
             overflow: hidden;
         }
 
-        .card::before {
-            content: "";
-            position: absolute;
-            top: 15px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: repeating-linear-gradient(to right, #E0E0E0, #E0E0E0 10px, transparent 10px, transparent 20px);
+        .bottom-area {
+            height: 60px;
+            background: linear-gradient(90deg, #FF9A8B, #FF6B6B);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
         }
 
-        .card-cover {
-            background: linear-gradient(135deg, #FF9A9E, #FAD0C4);
-        }
-
-        .title-box {
-            border: 2px solid #FF6B6B;
-            border-radius: 8px;
-            padding: 8px 15px;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-
-        .main-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: #333;
-            margin: 0;
-        }
-
-        .sub-title {
+        h1 {
             font-size: 24px;
-            font-weight: 500;
-            color: #333;
-            margin: 15px 0 10px;
+            color: #1A1A1A;
+            margin-top: 0;
+            margin-bottom: 15px;
         }
 
-        .content-text {
-            font-size: 16px;
+        h2 {
+            font-size: 18px;
+            color: #2B2B2B;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 14px;
             line-height: 1.6;
-            color: #333;
-            margin: 0 0 15px;
+            margin-bottom: 15px;
         }
 
         .highlight {
@@ -84,314 +87,343 @@
             border-radius: 3px;
         }
 
-        .feature-list {
-            margin: 0;
-            padding-left: 20px;
+        .code-block {
+            background-color: #F8F9FA;
+            border-left: 4px solid #FF6B6B;
+            padding: 12px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            overflow: hidden;
+            margin: 15px 0;
+            white-space: pre-wrap;
         }
 
-        .feature-item {
-            margin-bottom: 10px;
-            position: relative;
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 13px;
         }
 
-        .feature-item::before {
-            content: "•";
+        .table th, .table td {
+            border: 1px solid #E0E0E0;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .table th {
+            background-color: rgba(255, 154, 139, 0.1);
+        }
+
+        .continue-hint {
+            text-align: center;
             color: #FF6B6B;
             font-weight: bold;
-            position: absolute;
-            left: -15px;
+            margin-top: 10px;
         }
 
-        .code-block {
-            background-color: rgba(78, 205, 196, 0.1);
-            border-left: 3px solid #4ECDC4;
-            padding: 10px;
-            font-family: 'ZCOOL XiaoWei', monospace;
-            font-size: 14px;
-            border-radius: 0 4px 4px 0;
-            margin: 10px 0;
-            overflow-x: auto;
+        /* 封面特定样式 */
+        .cover-card {
+            background: linear-gradient(135deg, #FF9A8B 0%, #FF6B6B 50%, #FF8E53 100%);
         }
 
-        .tag {
-            display: inline-block;
-            background-color: rgba(255, 107, 107, 0.2);
-            color: #FF6B6B;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 14px;
-            margin-right: 5px;
-            margin-bottom: 5px;
-        }
-
-        .footer {
-            position: absolute;
-            bottom: 25px;
-            left: 25px;
-            right: 25px;
-            font-size: 14px;
-            color: #666;
+        .cover-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
-        }
-
-        .ip {
-            font-weight: 500;
-            color: #FF6B6B;
-        }
-
-        .icon {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            background-color: #FF6B6B;
+            height: 100%;
+            padding: 40px 30px;
             color: white;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 24px;
-            margin-right: 8px;
-            font-size: 14px;
+        }
+
+        .cover-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            line-height: 1.3;
+        }
+
+        .cover-subtitle {
+            font-size: 20px;
+            margin-bottom: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: 12px;
+        }
+
+        .cover-highlight {
+            background-color: rgba(255, 223, 0, 0.7);
+            padding: 0.2em 0.5em;
+            border-radius: 5px;
+            color: #1A1A1A;
+        }
+
+        .cover-tag {
+            margin-top: 40px;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
         }
     </style>
 </head>
 <body>
-<div class="card-container">
-    <!-- 封面卡 -->
-    <div class="card card-cover">
-        <div style="display: flex; flex-direction: column; height: 100%; justify-content: center; align-items: center;">
-            <div style="text-align: center;">
-                <div class="title-box">
-                    <h1 class="main-title">Java枚举</h1>
-                </div>
-                <h2 style="font-size: 28px; margin: 20px 0; color: #333;">8大实用场景全解析</h2>
-                <p style="font-size: 18px; color: #555;">告别魔法数字，提升代码质量</p>
-            </div>
-            <div class="footer">
-                <span class="ip">墨墨说-Java</span> · 编程最佳实践
-            </div>
-        </div>
+<!-- 封面卡片 -->
+<div class="card cover-card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
     </div>
+    <div class="cover-content">
+        <div class="cover-title">面试被问！</div>
+        <div class="cover-title" style="font-size: 24px">布隆过滤器1亿数据要多少内存？</div>
+        <div class="cover-subtitle">布隆过滤器空间优化逻辑</div>
+    </div>
+    <div class="bottom-area">
+        墨墨说-Java · 算法优化系列
+    </div>
+</div>
 
-    <!-- 场景1：固定集合常量 -->
-    <div class="card">
-        <div class="title-box">
-            <h2 class="main-title">场景1：固定集合常量</h2>
-        </div>
-        <p class="content-text">表示一组<span class="highlight">固定的、预定义的常量</span>（如状态、类型、模式等），比普通常量更安全、更易维护。</p>
+<!-- 核心公式卡片 -->
+<div class="card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
+    <div class="content-area">
+        <h1>核心估算公式</h1>
+        <p>布隆过滤器所需的内存大小（比特数，m）由以下公式决定：</p>
 
         <div class="code-block">
-            public enum OrderStatus {<br>
-            &nbsp;&nbsp;PENDING, PAID, SHIPPED, <br>
-            &nbsp;&nbsp;DELIVERED, CANCELLED<br>
-            }
+m = - (n * ln(p)) / (ln(2))²
+
+其中：
+● n = 预期要插入的元素数量
+● p = 可接受的误判率 (False Positive Rate)
+● m = 所需的最小比特数 (bit)
         </div>
 
-        <h3 class="sub-title">优势</h3>
-        <ul class="feature-list">
-            <li class="feature-item">编译时类型检查</li>
-            <li class="feature-item">自动补全支持</li>
-            <li class="feature-item">避免拼写错误</li>
-        </ul>
+        <p>得到比特数 m后，除以 8 即可得到字节数，再除以 1024^2 可得到MB单位的大小。</p>
 
-        <div class="footer">
-            <span class="ip">墨墨说-Java</span> · 枚举基础用法
-        </div>
+        <p>对于<span class="highlight">1亿条数据</span>（n = 100,000,000），我们计算不同误判率下的内存需求。</p>
+
+        <div class="continue-hint">↓ 继续查看详细计算 ↓</div>
     </div>
+    <div class="bottom-area">
+        墨墨说-Java · 算法优化系列
+    </div>
+</div>
 
-    <!-- 场景2：替代魔法值 -->
-    <div class="card">
-        <div class="title-box">
-            <h2 class="main-title">场景2：替代魔法值</h2>
-        </div>
-        <p class="content-text">避免直接使用数字或字符串字面量（如 1、"A"），用枚举提高<span class="highlight">可读性</span>和<span class="highlight">类型安全</span>。</p>
+<!-- 场景一卡片 -->
+<div class="card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
+    <div class="content-area">
+        <h1>场景一：标准误判率 (1%)</h1>
+        <p>这是最常用的配置，在内存空间和准确性之间取得了很好的平衡。</p>
 
         <div class="code-block">
-            public enum LogLevel {<br>
-            &nbsp;&nbsp;DEBUG, INFO, WARN, ERROR<br>
-            }<br><br>
-            // 使用：LogLevel.ERROR<br>
-            // 代替直接写 "ERROR"
+计算比特数 m:
+m = - (100,000,000 * ln(0.01)) / (ln(2))²
+
+ln(0.01) ≈ -4.60517
+(ln(2))² ≈ (0.693147)² ≈ 0.480453
+
+m = - [100,000,000 * (-4.60517)] / 0.480453
+= 460,517,000 / 0.480453
+≈ 958,505,000 bits
         </div>
 
-        <h3 class="sub-title">使用技巧</h3>
-        <p class="content-text">配合switch语句使用，编译器会检查是否处理了所有枚举值。</p>
-
-        <div class="footer">
-            <span class="ip">墨墨说-Java</span> · 代码可读性提升
-        </div>
+        <p>换算为内存大小:</p>
+        <ul>
+            <li>字节数: 958,505,000 / 8 ≈ <span class="highlight">119,813,000 Bytes</span></li>
+            <li>MB: 119,813,000 / (1024 * 1024) ≈ <span class="highlight">114.25 MB</span></li>
+        </ul>
     </div>
+    <div class="bottom-area">
+        墨墨说-Java · 算法优化系列
+    </div>
+</div>
 
-    <!-- 场景3：附加行为 -->
-    <div class="card">
-        <div class="title-box">
-            <h2 class="main-title">场景3：附加行为</h2>
-        </div>
-        <p class="content-text">枚举可以包含方法、字段，甚至实现接口，为每个常量赋予<span class="highlight">特定逻辑</span>。</p>
+<!-- 场景二卡片 -->
+<div class="card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
+    <div class="content-area">
+        <h1>场景二：较低误判率 (0.1%)</h1>
+        <p>适用于对准确性要求极高的场景。</p>
 
         <div class="code-block">
-            public enum Operation {<br>
-            <br>
-            &nbsp;&nbsp;&nbsp;&nbsp;ADD {
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public double apply(double x, double y) { return x + y; }
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;},<br>
-            <br>
-            &nbsp;&nbsp;&nbsp;&nbsp;SUBTRACT { <br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public double apply(double x, double y) { return x - y; }
-            <br>
-            &nbsp;&nbsp;&nbsp;&nbsp;};<br>
-            <br>
-            &nbsp;&nbsp;&nbsp;&nbsp;public abstract double apply(double x, double y);<br>
-            <br>
-            }
+计算比特数 m:
+m = - (100,000,000 * ln(0.001)) / (ln(2))²
+
+ln(0.001) ≈ -6.90776
+
+m = - [100,000,000 * (-6.90776)] / 0.480453
+= 690,776,000 / 0.480453
+≈ 1,437,000,000 bits
         </div>
 
-        <h3 class="sub-title">适用场景</h3>
-        <div style="margin-bottom: 15px;">
-            <span class="tag">策略模式</span>
-            <span class="tag">状态模式</span>
-            <span class="tag">命令模式</span>
-        </div>
-
-        <div class="footer">
-            <span class="ip">墨墨说-Java</span> · 枚举高级用法
-        </div>
-    </div>
-
-    <!-- 场景4-5：单例与多例 -->
-    <div class="card">
-        <div class="title-box">
-            <h2 class="main-title">场景4-5：单例与多例</h2>
-        </div>
-
-        <div style="display: flex; margin-bottom: 15px;">
-            <div style="flex: 1; padding-right: 10px;">
-                <h3 style="font-size: 18px; color: #FF6B6B; margin-bottom: 5px;">单例模式</h3>
-                <p style="font-size: 14px; margin: 0;">枚举天然支持线程安全的单例实现</p>
-                <div class="code-block" style="font-size: 13px;height: 197px;">
-                    public enum Singleton {<br>
-                    &nbsp;&nbsp;INSTANCE;<br>
-                    &nbsp;&nbsp;public void doSomething() { /* ... */ }<br>
-                    }
-                </div>
-            </div>
-            <div style="flex: 1; padding-left: 10px;">
-                <h3 style="font-size: 18px; color: #4ECDC4; margin-bottom: 5px;">多例模式</h3>
-                <p style="font-size: 14px; margin: 0;">一组有限的、预定义的不可变对象</p>
-                <div class="code-block" style="font-size: 13px;">
-                    public enum Color {<br><br>
-                    &nbsp;&nbsp;RED("#FF0000"), <br>&nbsp;&nbsp;GREEN("#00FF00");<br><br>
-                    &nbsp;&nbsp;private String hexCode;<br><br>
-                    &nbsp;&nbsp;Color(String hexCode) { <br> &nbsp;&nbsp;&nbsp;&nbsp;this.hexCode = hexCode;
-                    <br>&nbsp;&nbsp;}<br><br>
-                    &nbsp;&nbsp;public String getHexCode() { <br>&nbsp;&nbsp;&nbsp;&nbsp;return hexCode;
-                    <br>&nbsp;&nbsp;}<br>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <div class="footer">
-            <span class="ip">墨墨说-Java</span> · 设计模式应用
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="title-box">
-            <h2 class="main-title">场景4-5：单例与多例</h2>
-        </div>
-
-        <h3 class="sub-title">优势对比</h3>
-        <ul class="feature-list">
-            <li class="feature-item"><span class="highlight">线程安全</span>：JVM保证枚举实例唯一性</li>
-            <li class="feature-item"><span class="highlight">序列化安全</span>：无需担心反序列化创建新实例</li>
-            <li class="feature-item"><span class="highlight">防反射攻击</span>：无法通过反射创建枚举实例</li>
+        <p>换算为内存大小:</p>
+        <ul>
+            <li>字节数: 1,437,000,000 / 8 ≈ <span class="highlight">179,625,000 Bytes</span></li>
+            <li>MB: 179,625,000 / (1024 * 1024) ≈ <span class="highlight">171.33 MB</span></li>
         </ul>
-
-        <div class="footer">
-            <span class="ip">墨墨说-Java</span> · 设计模式应用
-        </div>
     </div>
+    <div class="bottom-area">
+        墨墨说-Java · 算法优化系列
+    </div>
+</div>
 
-        <!-- 场景6-8：框架交互与总结 -->
-    <div class="card">
-        <div class="title-box">
-            <h2 class="main-title">场景6-8：进阶应用</h2>
+<!-- 场景三卡片 -->
+<div class="card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
+    <div class="content-area">
+        <h1>场景三：较高误判率 (3%)</h1>
+        <p>适用于内存空间非常紧张，可以容忍稍高误判率的场景。</p>
+
+        <div class="code-block">
+计算比特数 m:
+m = - (100,000,000 * ln(0.03)) / (ln(2))²
+
+ln(0.03) ≈ -3.50656
+
+m = - [100,000,000 * (-3.50656)] / 0.480453
+= 350,656,000 / 0.480453
+≈ 729,700,000 bits
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <span class="icon">6</span>
-                <span style="font-weight: 500;">类型安全的配置选项</span>
-            </div>
-            <p class="content-text">当配置参数需要限定范围时（如数据库类型、缓存策略）。</p>
-            <div class="code-block" style="font-size: 13px;">
-                public enum CacheType {<br>
-                &nbsp;&nbsp;LOCAL, REDIS, MEMCACHED<br>
-                }
-            </div>
-
-            <div style="display: flex; align-items: center; margin: 15px 0 10px;">
-                <span class="icon">7</span>
-                <span style="font-weight: 500;">与框架交互</span>
-            </div>
-            <p class="content-text">JPA、Spring等框架直接支持枚举，用于数据库字段、请求参数等。</p>
-            <div class="code-block" style="font-size: 13px;">
-                @Enumerated(EnumType.STRING)<br>
-                private UserRole role; // UserRole是枚举
-            </div>
-        </div>
-
-        <h3 class="sub-title">何时避免枚举？</h3>
-        <ul class="feature-list">
-            <li class="feature-item">常量需要动态变化时（枚举在编译时固定）</li>
-            <li class="feature-item">常量数量极大或可能频繁扩展</li>
+        <p>换算为内存大小:</p>
+        <ul>
+            <li>字节数: 729,700,000 / 8 ≈ <span class="highlight">91,212,500 Bytes</span></li>
+            <li>MB: 91,212,500 / (1024 * 1024) ≈ <span class="highlight">87.00 MB</span></li>
         </ul>
+    </div>
+    <div class="bottom-area">
+        墨墨说-Java · 算法优化系列
+    </div>
+</div>
 
-        <div class="footer">
-            <span class="ip">墨墨说-Java</span> · 枚举最佳实践
+<!-- 总结表格卡片 -->
+<div class="card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
+    <div class="content-area">
+        <h1>内存需求总结</h1>
+        <p>不同误判率下的内存需求对比：</p>
+
+        <table class="table">
+            <tr>
+                <th>误判率 (p)</th>
+                <th>所需比特数 (m)</th>
+                <th>所需内存大小 (约)</th>
+                <th>适用场景</th>
+            </tr>
+            <tr>
+                <td>1% (0.01)</td>
+                <td>~958 million</td>
+                <td>114 MB</td>
+                <td>标准配置，平衡型</td>
+            </tr>
+            <tr>
+                <td>0.1% (0.001)</td>
+                <td>~1.437 billion</td>
+                <td>171 MB</td>
+                <td>高精度，低误判需求</td>
+            </tr>
+            <tr>
+                <td>3% (0.03)</td>
+                <td>~730 million</td>
+                <td>87 MB</td>
+                <td>内存敏感，可接受较高误判</td>
+            </tr>
+        </table>
+
+        <p class="highlight">关键结论：对于1亿条数据，布隆过滤器的内存需求大致在90MB到170MB之间</p>
+
+        <div class="continue-hint">↓ Java实现示例 ↓</div>
+    </div>
+    <div class="bottom-area">
+        墨墨说-Java · 算法优化系列
+    </div>
+</div>
+
+<!-- Java实现卡片 -->
+<div class="card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
+    <div class="content-area">
+        <h1>Java实现示例</h1>
+        <p>使用Google Guava库创建布隆过滤器：</p>
+
+        <div class="code-block">import com.google.common.hash.BloomFilter;
+import com.google.common.hash.Funnels;
+
+public class BloomFilterExample {
+    public static void main(String[] args) {
+        // 创建处理String类型的布隆过滤器
+        // 预期插入1亿条数据，误判率为1%
+        BloomFilter<String> bloomFilter = BloomFilter.create(
+            Funnels.unencodedCharsFunnel(),
+            100_000_000,
+            0.01
+        );
+
+        bloomFilter.put("www.example.com");
+        if (bloomFilter.mightContain("aaa")) {
+            System.out.println("可能存在");
+        }
+    }
+}</div>
+
+    </div>
+    <div class="bottom-area">
+        墨墨说-Java · 算法优化系列
+    </div>
+</div>
+
+<!-- 总结卡片 -->
+<div class="card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
+    <div class="content-area">
+        <h1>核心要点总结</h1>
+
+        <p>✅ 布隆过滤器以<span class="highlight">极小内存</span>处理海量数据</p>
+        <p>✅ 1亿数据仅需约<span class="highlight">114MB</span>内存(1%误判率)</p>
+        <p>✅ 内存需求与误判率<span class="highlight">负相关</span></p>
+        <p>✅ 使用成熟库(如Guava)自动计算参数</p>
+        <p>✅ 实际内存略大于理论值(因实现细节)</p>
+
+        <h2>适用场景</h2>
+        <p>✔ 缓存穿透防护</p>
+        <p>✔ 大规模数据初步过滤</p>
+        <p>✔ 爬虫URL去重</p>
+        <p>✔ 垃圾邮件过滤</p>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <p style="color: #FF6B6B; font-weight: bold;">关注"墨墨说-Java"获取更多技术干货</p>
         </div>
     </div>
-
-    <!-- 总结互动卡 -->
-    <div class="card">
-        <div class="title-box">
-            <h2 class="main-title">枚举核心优势</h2>
-        </div>
-
-        <div style="display: flex; flex-wrap: wrap; margin: 15px 0;">
-            <div style="width: 50%; padding: 5px; box-sizing: border-box;">
-                <div style="background-color: rgba(255, 107, 107, 0.1); padding: 10px; border-radius: 8px; height: 100%;">
-                    <h3 style="font-size: 16px; color: #FF6B6B; margin: 0 0 5px;">类型安全</h3>
-                    <p style="font-size: 14px; margin: 0;">编译器检查，避免无效值</p>
-                </div>
-            </div>
-            <div style="width: 50%; padding: 5px; box-sizing: border-box;">
-                <div style="background-color: rgba(78, 205, 196, 0.1); padding: 10px; border-radius: 8px; height: 100%;">
-                    <h3 style="font-size: 16px; color: #4ECDC4; margin: 0 0 5px;">可读性</h3>
-                    <p style="font-size: 14px; margin: 0;">语义明确，自文档化</p>
-                </div>
-            </div>
-            <div style="width: 50%; padding: 5px; box-sizing: border-box;">
-                <div style="background-color: rgba(255, 223, 0, 0.1); padding: 10px; border-radius: 8px; height: 100%;margin-top: 20px;">
-                    <h3 style="font-size: 16px; color: #FFD700; margin: 0 0 5px;">扩展性</h3>
-                    <p style="font-size: 14px; margin: 0;">可添加方法和字段</p>
-                </div>
-            </div>
-            <div style="width: 50%; padding: 5px; box-sizing: border-box;">
-                <div style="background-color: rgba(160, 210, 219, 0.1); padding: 10px; border-radius: 8px; height: 100%;margin-top: 20px;">
-                    <h3 style="font-size: 16px; color: #A0D2DB; margin: 0 0 5px;">线程安全</h3>
-                    <p style="font-size: 14px; margin: 0;">实例由JVM保证唯一</p>
-                </div>
-            </div>
-        </div>
-
-        <div style="margin-top: 15px; padding: 15px; background-color: rgba(255, 107, 107, 0.1); border-radius: 8px;margin-top: 50px;">
-            <p style="margin: 0; font-size: 15px; color: #333;">你在项目中如何使用枚举？分享你的实战案例吧！</p>
-            <p style="margin: 10px 0 0; font-size: 14px; color: #666;">点赞收藏，获取更多Java干货</p>
-        </div>
-
-        <div class="footer">
-            <span class="ip">墨墨说-Java</span> · 期待你的互动
-        </div>
+    <div class="bottom-area">
+        墨墨说-Java · 算法优化系列
     </div>
 </div>
 </body>
