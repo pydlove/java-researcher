@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说-RAG技术</title>
+    <style>
+        body {
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            background-color: #F0FFF5;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            justify-content: center;
+        }
+        .card {
+            width: 450px;
+            height: 600px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            height: 20px;
+            background: linear-gradient(90deg, #FF6B6B, #FF8E53);
+            position: relative;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background: #FF9A8B;
+            border-radius: 0 5px 5px 0;
+        }
+        .content {
+            padding: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .footer {
+            height: 60px;
+            background: linear-gradient(90deg, #FF6B6B, #FF8E53);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        h1 {
+            color: #FF6B6B;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #FF8E53;
+            font-size: 18px;
+            margin: 15px 0 10px;
+        }
+        p, li {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333333;
+            margin-bottom: 5px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .highlight {
+            background-color: rgba(255, 107, 107, 0.2);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+        .code-block {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .warning {
+            background-color: rgba(255, 223, 0, 0.3);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .process-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .process-step {
+            width: 90%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .step-1 { background-color: #E6F3FF; }
+        .step-2 { background-color: #C1E1FF; }
+        .step-3 { background-color: #9BCFFF; }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #f2f2f2;
+        }
+        .architecture {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<!-- 封面卡 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #FF6B6B, #FF8E53);">
+        <h1 style="color: white; font-size: 28px; text-align: center;"> 什么是RAG（检索增强生成）？​</h1>
+        <div class="code-block" style="background: rgba(255,255,255,0.2); color: white;">
+            # RAG工作流程<br>
+            用户问题 → 检索相关文档 → 增强生成 → 精准答案
+        </div>
+    </div>
+    <div class="footer">墨墨说-AI技术</div>
+</div>
+
+<!-- 卡片1：基本概念 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>基本概念</h1>
+        <p>RAG（检索增强生成）结合信息检索与文本生成，提升AI模型的准确性和事实性。</p>
+
+        <div class="process-flow">
+            <div class="process-step step-1">1. 检索 (Retrieval)</div>
+            <div style="margin: 5px;">↓</div>
+            <div class="process-step step-2">2. 增强 (Augmentation)</div>
+            <div style="margin: 5px;">↓</div>
+            <div class="process-step step-3">3. 生成 (Generation)</div>
+        </div>
+
+        <h2>核心步骤</h2>
+        <ul>
+            <li><span class="highlight">检索</span>：从外部知识库中检索相关信息片段</li>
+            <li><span class="highlight">生成</span>：将检索结果与用户输入结合生成答案</li>
+        </ul>
+
+        <div class="warning">
+            💡 动态引入最新知识，减少"幻觉"错误
+        </div>
+    </div>
+    <div class="footer">墨墨说-AI技术</div>
+</div>
+
+<!-- 卡片2：与传统模型对比 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>与传统生成模型对比</h1>
+
+        <table class="comparison-table">
+            <tr>
+                <th>特性</th>
+                <th>纯生成模型 (如GPT)</th>
+                <th>RAG模型</th>
+            </tr>
+            <tr>
+                <td>知识来源</td>
+                <td>仅训练数据</td>
+                <td>训练数据 + 实时检索</td>
+            </tr>
+            <tr>
+                <td>知识更新</td>
+                <td>需重新训练模型</td>
+                <td>修改知识库即可</td>
+            </tr>
+            <tr>
+                <td>事实准确性</td>
+                <td>可能产生虚构信息</td>
+                <td>基于检索内容，更准确</td>
+            </tr>
+            <tr>
+                <td>适用场景</td>
+                <td>通用对话、创意写作</td>
+                <td>客服、医疗、法律等专业领域</td>
+            </tr>
+        </table>
+
+        <h2>关键差异</h2>
+        <p>RAG通过<span class="highlight">动态检索</span>弥补了纯生成模型的知识局限性和时效性问题。</p>
+    </div>
+    <div class="footer">墨墨说-AI技术</div>
+</div>
+
+<!-- 卡片3：核心优势 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>核心优势</h1>
+
+        <h2>1. 知识可更新</h2>
+        <p>无需重新训练模型，修改知识库即可更新信息</p>
+        <div class="code-block">
+            // 传统方法：重新训练
+            model.retrain(new_data); // 耗时耗资源
+
+            // RAG方法：更新知识库
+            knowledgeBase.update(documents); // 快速灵活
+        </div>
+
+        <h2>2. 来源可追溯</h2>
+        <p>可标注答案引用的文档，增强可信度</p>
+
+        <h2>3. 处理长尾问题</h2>
+        <p>对训练数据中罕见的问题，通过检索补充相关知识</p>
+
+        <div class="warning">
+            ✅ 特别适合需要事实准确性的专业场景
+        </div>
+    </div>
+    <div class="footer">墨墨说-AI技术</div>
+</div>
+
+<!-- 卡片4：应用场景 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>典型应用场景</h1>
+
+        <h2>1. 智能问答系统</h2>
+        <p>基于企业文档的智能客服</p>
+        <div class="code-block">
+            用户问："公司年假政策是什么？"
+            → 检索员工手册相关内容
+            → 生成准确的政策解释
+        </div>
+
+        <h2>2. 事实核查</h2>
+        <p>验证信息的真实性</p>
+
+        <h2>3. 个性化推荐</h2>
+        <p>结合用户数据生成个性化内容</p>
+        <div class="code-block">
+            用户偏好：科技、AI
+            → 检索最新科技资讯
+            → 生成个性化推荐内容
+        </div>
+
+        <h2>4. 专业领域咨询</h2>
+        <ul>
+            <li>医疗诊断辅助</li>
+            <li>法律咨询</li>
+        </ul>
+    </div>
+    <div class="footer">墨墨说-AI技术</div>
+</div>
+
+<!-- 卡片5：技术架构 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>技术架构</h1>
+
+        <div class="architecture">
+            <strong>RAG系统组成：</strong>
+            <ul>
+                <li>检索器 (Retriever)</li>
+                <li>生成器 (Generator)</li>
+                <li>知识库 (Knowledge Base)</li>
+            </ul>
+        </div>
+
+        <h2>检索器类型</h2>
+        <ul>
+            <li><span class="highlight">密集检索</span>：使用向量嵌入进行语义搜索</li>
+            <li><span class="highlight">稀疏检索</span>：基于关键词匹配的传统方法</li>
+            <li><span class="highlight">混合检索</span>：结合两种方法的优势</li>
+        </ul>
+
+        <h2>生成器选择</h2>
+        <p>通常使用大型语言模型如GPT、LLaMA等</p>
+
+        <div class="code-block">
+            # 典型RAG流程
+            query = "量子计算的最新进展"
+            documents = retriever.retrieve(query)
+            answer = generator.generate(query, documents)
+        </div>
+    </div>
+    <div class="footer">墨墨说-AI技术</div>
+</div>
+
+<!-- 卡片6：技术挑战与未来 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>技术挑战与未来</h1>
+
+        <h2>主要挑战</h2>
+        <ul>
+            <li><span class="highlight">检索效率与精度平衡</span></li>
+            <li>生成模型对检索结果的合理利用</li>
+            <li>知识库的覆盖范围与质量</li>
+        </ul>
+
+        <h2>示例场景</h2>
+        <div class="code-block">
+            用户问："量子计算的最新进展是什么？"
+            RAG操作：
+            1. 检索2023年后的论文/新闻
+            2. 生成包含具体技术细节的摘要
+            3. 避免依赖可能过时的训练数据
+        </div>
+
+        <h2>未来方向</h2>
+        <ul>
+            <li>更智能的检索策略</li>
+            <li>多模态RAG（图像、文本结合）</li>
+            <li>自适应知识更新机制</li>
+        </ul>
+
+        <div class="warning">
+            🚀 RAG代表了生成式AI与知识库协同的新方向
+        </div>
+    </div>
+    <div class="footer">墨墨说-AI技术</div>
+</div>
+</body>
+</html>

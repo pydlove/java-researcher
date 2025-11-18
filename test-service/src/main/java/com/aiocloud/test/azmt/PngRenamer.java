@@ -7,7 +7,7 @@ import java.util.Comparator;
 public class PngRenamer {
     public static void main(String[] args) {
         // 指定目录路径（根据你的图片路径修改）
-        String directoryPath = "D:\\aiocloud\\AI 自媒体\\202508011\\1120";
+        String directoryPath = "D:\\aiocloud\\AI 自媒体\\202508011\\1138";
 
         File directory = new File(directoryPath);
 

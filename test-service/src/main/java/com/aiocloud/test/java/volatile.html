@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说-volatile关键字</title>
+    <style>
+        body {
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            background-color: #F5F0FF;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        .card {
+            width: 450px;
+            height: 600px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            height: 20px;
+            background: linear-gradient(90deg, #8E6BFF, #6B8EFF);
+            position: relative;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background: #6BFF8E;
+            border-radius: 0 5px 5px 0;
+        }
+        .content {
+            padding: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .footer {
+            height: 60px;
+            background: linear-gradient(90deg, #6B8EFF, #8E6BFF);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        h1 {
+            color: #6B8EFF;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #8E6BFF;
+            font-size: 18px;
+            margin: 15px 0 10px;
+        }
+        p, li {
+            font-size: 14px;
+            line-height: 1.2;
+            color: #333333;
+            margin-bottom: 5px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .highlight {
+            background-color: rgba(107, 142, 255, 0.3);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+        .code-block {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 5px 0;
+            white-space: pre;
+        }
+        .warning {
+            background-color: rgba(255, 223, 0, 0.3);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .memory-model {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+        .cpu {
+            width: 80px;
+            text-align: center;
+        }
+        .cpu-core {
+            background: #E6F3FF;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+        .main-memory {
+            flex: 1;
+            background: #C1E1FF;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+        }
+        .barrier {
+            background: #FF6B6B;
+            color: white;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: center;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+<!-- 封面卡 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #6B8EFF, #8E6BFF);">
+        <h1 style="color: white; font-size: 28px; text-align: center;">面试必问：volatile关键字</h1>
+        <p style="color: white; text-align: center; font-size: 16px;">Java并发编程的轻量级同步</p>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片1：可见性保证 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>可见性保证</h1>
+
+        <div class="memory-model">
+            <div class="cpu">
+                <div class="cpu-core">CPU1</div>
+                <div>本地缓存</div>
+            </div>
+            <div class="main-memory">
+                volatile变量
+            </div>
+            <div class="cpu">
+                <div class="cpu-core">CPU2</div>
+                <div>本地缓存</div>
+            </div>
+        </div>
+
+        <h2>工作机制</h2>
+        <ul>
+            <li><span class="highlight">写操作</span>：立即刷新到主内存</li>
+            <li><span class="highlight">读操作</span>：直接从主内存读取</li>
+            <li>基于MESI等缓存一致性协议</li>
+        </ul>
+
+        <div class="warning">
+            ⚠️ 普通变量可能读取到线程本地缓存的旧值
+        </div>
+
+        <div class="code-block">// 线程A
+flag = true; // 立即写入主内存
+
+// 线程B
+if (flag) {  // 从主内存读取最新值
+// 保证看到true
+}</div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片2：有序性保证 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>有序性保证</h1>
+
+        <h2>Happens-Before原则</h2>
+        <p>对volatile变量的写操作<span class="highlight">happens-before</span>后续所有读操作</p>
+
+        <div class="barrier">StoreStore屏障</div>
+        <p>禁止普通写与volatile写重排序</p>
+
+        <div class="barrier">StoreLoad屏障</div>
+        <p>禁止volatile写与后续操作重排序</p>
+
+        <div class="barrier">LoadLoad屏障</div>
+        <p>禁止volatile读与后续读操作重排序</p>
+
+        <div class="barrier">LoadStore屏障</div>
+        <p>禁止volatile读与后续写操作重排序</p>
+
+
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片3：内存屏障 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>内存屏障机制</h1>
+
+        <h2>JVM层面</h2>
+        <p>插入特定内存屏障指令：</p>
+        <ul>
+            <li>x86: lock前缀指令或mfence</li>
+            <li>ARM: dmb/dsb指令</li>
+        </ul>
+
+        <h2>硬件层面</h2>
+        <p>依赖CPU的缓存一致性协议：</p>
+        <ul>
+            <li>MESI (Intel)</li>
+            <li>MOESI (AMD)</li>
+        </ul>
+
+        <div class="warning">
+            💡 不同CPU架构的内存屏障实现不同<br>
+            JVM会根据平台自动选择
+        </div>
+
+
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片4：使用场景 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>典型使用场景</h1>
+
+        <h2>1. 状态标志位</h2>
+        <div class="code-block">
+private volatile boolean shutdown;
+
+public void shutdown() {
+    shutdown = true; // 所有线程立即可见
+}
+
+public void doWork() {
+    while (!shutdown) {
+        // 正常工作
+    }
+}
+        </div>
+
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+<!-- 卡片4：使用场景 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>典型使用场景</h1>
+
+        <h2>2. 双重检查锁定</h2>
+        <div class="code-block">
+private static volatile Singleton instance;
+
+public static Singleton getInstance() {
+    if (instance == null) {          // 第一次检查
+        synchronized (Singleton.class) {
+            if (instance == null) {  // 第二次检查
+                instance = new Singleton();
+            }
+        }
+    }
+    return instance;
+}
+        </div>
+
+        <div class="warning">
+            ✅ volatile防止指令重排序<br>
+            避免返回未初始化的实例
+        </div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片5：注意事项 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>注意事项</h1>
+
+        <h2>不保证原子性</h2>
+        <p>复合操作仍需同步</p>
+
+        <h2>性能影响</h2>
+        <ul>
+            <li>比普通变量访问慢</li>
+            <li>但比synchronized快</li>
+            <li>避免过度使用</li>
+        </ul>
+
+        <h2>不适用场景</h2>
+        <ul>
+            <li>多步骤的复合操作</li>
+            <li>需要互斥访问的临界区</li>
+        </ul>
+
+        <div class="warning">
+            ⚠️ volatile不能替代synchronized<br>
+            仅适用于特定场景
+        </div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片6：与synchronized对比 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>与synchronized对比</h1>
+
+        <table style="width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px;">
+            <tr>
+                <th style="border: 1px solid #ddd; padding: 8px;">特性</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">volatile</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">synchronized</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">可见性</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">✔️</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">✔️</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">有序性</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">✔️</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">✔️</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">原子性</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">❌</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">✔️</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">阻塞</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">❌</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">✔️</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">性能</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">较高</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">较低</td>
+            </tr>
+        </table>
+
+        <h2>选择建议</h2>
+        <ul>
+            <li>单变量状态标志 → volatile</li>
+            <li>复合操作 → synchronized或Atomic类</li>
+            <li>需要互斥访问 → synchronized</li>
+        </ul>
+
+        <div class="code-block">// 根据场景选择：
+// 1. 仅需可见性：volatile
+// 2. 需要原子性：AtomicXXX
+// 3. 需要互斥：synchronized</div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+</body>
+</html>

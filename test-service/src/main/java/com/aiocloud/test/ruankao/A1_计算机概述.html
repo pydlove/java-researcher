@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说-Java | 计算机核心架构</title>
+    <style>
+        body {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            background-color: #F0F8FF;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        .card {
+            width: 450px;
+            height: 600px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            height: 20px;
+            background: linear-gradient(90deg, #FF9A8B, #FF6B6B);
+            position: relative;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background-color: #FF8E53;
+            border-radius: 0 5px 5px 0;
+            left: 0;
+        }
+        .content {
+            padding: 25px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .footer {
+            height: 60px;
+            background: linear-gradient(90deg, #FF9A8B, #FF6B6B);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        h1 {
+            font-size: 24px;
+            color: #1A1A1A;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 18px;
+            color: #333333;
+            margin: 15px 0;
+        }
+        p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #2B2B2B;
+            margin-bottom: 15px;
+        }
+        .highlight {
+            background-color: rgba(255, 223, 0, 0.5);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+        .code-block {
+            background-color: #F5F5F5;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 13px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        .code-line {
+            white-space: pre-wrap;
+            margin-bottom: 3px;
+        }
+        .note {
+            background-color: rgba(0, 191, 255, 0.1);
+            border-left: 3px solid #00BFFF;
+            padding: 10px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+<!-- 封面卡 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content" style="background: linear-gradient(135deg, #FF9A8B, #FF6B6B, #FF8E53); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+        <h1 style="color: white; font-size: 28px;">软考第一部分-了解计算机</h1>
+        <p style="color: white; font-size: 16px;">墨墨说-Java独家解析</p>
+        <div style="margin-top: 30px;">
+            <p style="color: white; font-size: 14px;">掌握计算机组成原理</p>
+            <p style="color: white; font-size: 14px;">架构师必备基础知识</p>
+        </div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 核心内容卡1 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>两大核心模块</h1>
+
+        <h2>1. 主机部分</h2>
+        <p><span class="highlight">CPU</span>（中央处理器）是计算机的大脑：</p>
+        <div class="code-block">
+            <div class="code-line">// CPU核心组件伪代码</div>
+            <div class="code-line">class CPU {</div>
+            <div class="code-line">    // 运算器组件</div>
+            <div class="code-line">    ALU alu = new ALU();</div>
+            <div class="code-line">    // 控制器组件</div>
+            <div class="code-line">    ControlUnit cu = new ControlUnit();</div>
+            <div class="code-line">}</div>
+        </div>
+
+        <h2>2. 外设部分</h2>
+        <p>包括输入/输出设备和<span class="highlight">辅助存储器</span>：</p>
+        <div class="note">
+            注意：外设必须通过I/O接口才能与主机通信
+        </div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 核心内容卡2 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>CPU核心功能</h1>
+
+        <h2>运算器组件</h2>
+        <p>负责执行所有<span class="highlight">算术运算</span>和<span class="highlight">逻辑运算</span>：</p>
+        <div class="code-block">
+            <div class="code-line">// 加法运算示例</div>
+            <div class="code-line">int add(int a, int b) {</div>
+            <div class="code-line">    return a + b; // 算术运算</div>
+            <div class="code-line">}</div>
+            <div class="code-line">boolean compare(int a, int b) {</div>
+            <div class="code-line">    return a > b; // 逻辑运算</div>
+            <div class="code-line">}</div>
+        </div>
+
+        <h2>控制器组件</h2>
+        <p>通过<span class="highlight">控制信号</span>指挥各部件协同工作：</p>
+        <div class="note">
+            控制信号流向：控制器→所有硬件部件
+        </div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 核心内容卡3 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>存储器体系</h1>
+
+        <h2>主存储器</h2>
+        <p>特点：</p>
+        <ul style="padding-left: 20px; line-height: 1.5;">
+            <li>与CPU<span class="highlight">直接交互</span></li>
+            <li>存储正在运行的程序和数据</li>
+            <li>断电后数据丢失</li>
+        </ul>
+
+        <h2>辅助存储器</h2>
+        <p>特点：</p>
+        <ul style="padding-left: 20px; line-height: 1.5;">
+            <li>需要<span class="highlight">调入主存</span>才能使用</li>
+            <li>长期保存数据</li>
+            <li>速度比主存慢</li>
+        </ul>
+
+        <div class="note">
+            重要：主存速度 > 辅存速度，但容量 < 辅存
+        </div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 核心内容卡4 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>数据流动方向</h1>
+
+        <h2>三大信息流</h2>
+        <p>1. <span class="highlight">数据流</span>：</p>
+        <div class="code-block">
+            <div class="code-line">输入设备 → 主存 → 运算器 → 输出设备</div>
+        </div>
+
+        <p>2. <span class="highlight">控制流</span>：</p>
+        <div class="code-block">
+            <div class="code-line">控制器 → 所有硬件部件</div>
+        </div>
+
+        <p>3. <span class="highlight">地址/指令流</span>：</p>
+        <div class="code-block">
+            <div class="code-line">CPU ↔ 主存（读写指令）</div>
+        </div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 总结卡 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>速记口诀</h1>
+
+        <div style="background-color: rgba(255, 223, 0, 0.2); padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <p style="font-size: 16px; font-weight: bold; text-align: center;">"主机算控存，外设输存出"</p>
+        </div>
+
+        <h2>核心要点总结</h2>
+        <ol style="padding-left: 20px; line-height: 1.5;">
+            <li>CPU = 运算器 + 控制器</li>
+            <li>主存与CPU直接交互</li>
+            <li>数据流方向固定</li>
+            <li>控制器是系统的指挥中心</li>
+        </ol>
+
+        <div class="note" style="margin-top: 20px;">
+            下期预告：计算机体系结构深入解析
+        </div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说-SQL JOIN优化</title>
+    <style>
+        body {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            background-color: #FFF5F5;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        .card {
+            width: 450px;
+            height: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+        ;
+        }
+        .header {
+            height: 20px;
+            background: linear-gradient(90deg, #FF6B6B, #FF);
+            position: relative;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background: #FF9A8B;
+            border-radius: 0 5px 5px 0;
+        }
+        .content {
+            padding: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .footer {
+            height: 60px;
+            background: linear-gradient(90deg, #FF8E53, #FF9A8B);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        h1 {
+            color: #FF6B6B;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #FF8E53;
+            font-size: 18px;
+            margin: 15px 0 10px;
+        }
+        p, li {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .: rgba(255, 107, 107, 0.3);
+        padding: 0.1em 0.3em;
+        border-radius: 3px;
+        }
+        .code-block {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .warning {
+            background-color: rgba223, 0, 0.3);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<!-- 封面卡 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #FF6B6B, #FF8E53);">
+        <h1 style=" font-size: 28px; text-align: center;">SQL JOIN优化秘籍</h1>
+        <p style="color: white; text-align: center; font-size;">让多表查询快如闪电</p>
+        <div class="code-block" style="background: rgba(255,255,255,0.2); color: white;">
+            -- 优化前: 3秒<br>
+            SELECT * FROM A JOIN B...<br>
+            <br>
+            -- 优化后: 0.1秒<br>
+            SELECT a.id FROM A JOIN B...
+        </div>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+
+<!-- 卡片1：索引优化 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>索引优化（最关键）</h1>
+        <h2>JOIN字段必须索引</h2>
+        <div class="code-block">
+            -- 为JOIN条件创建索引
+            ALTER TABLE orders
+            ADD INDEX idx_customer_id (customer_id);
+
+            ALTER TABLE customers
+            ADD INDEX idx_id (id);
+        </div>
+
+        <h2>覆盖索引</h2>
+        <p>包含<span class="highlight">查询所需所有字段</span>的复合索引</p>
+        <div class="code-block">
+            -- 减少回表操作
+            ALTER TABLE orders ADD INDEX idx_cover
+            (customer_id, order_date, amount);
+        </div>
+
+        <div class="warning">
+            ❗ 检查所有JOIN条件字段<br>
+            ❗ 避免在索引列上使用函数
+        </div>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+
+<!-- 卡片2：JOIN类型与表顺序 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>JOIN策略选择</h1>
+        <h2>类型选择</h2>
+        <ul>
+            <li><span class="highlight">INNER JOIN</span>：默认最佳</li>
+            <li>LEFT JOIN：只需左表数据时</li>
+            <li>避免FULL OUTER JOIN</li>
+        </ul>
+
+        <h2>表顺序原则            <p><span class="highlight">小表驱动大表</span></p>
+            <div class="code-block">
+                -- 好的写法：小表(users)驱动大表(orders)
+                SELECT * FROM users u
+                JOIN orders o ON u.id = o.user_id;
+
+                -- 坏的写法：大表驱动小表
+                SELECT * FROM orders o
+                JOIN users u ON o.user_id = u.id;
+            </div>
+
+            <p>MySQL 8.0+ 优化器会自动调整表顺序</p>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+
+<!-- 卡片3：查询重写技巧 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>高级重写技巧</h1>
+        >子查询转JOIN</h2>
+        <div class="code-block">
+            -- 优化前
+            SELECT * FROM users
+            WHERE id IN (SELECT user_id FROM orders);
+
+            -- 优化后
+            SELECT DISTINCT u.* FROM users u
+            JOIN orders o ON u.id = o.user_id;
+        </div>
+
+        <h2>分阶段JOIN</h2>
+        <div class="code-block">
+            WITH filtered_ SELECT user_id FROM orders
+            WHERE order_date > '2023-01-01'
+            )
+            SELECT u.* FROM users u
+            JOIN filtered_orders fo ON u.id = fo.user_id;
+        </div>
+
+        <p class="highlight">先过滤再JOIN能减少数据处理量</p>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+
+<!-- 卡片4：执行计划分析 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>EXPLAIN诊断</h1>
+        <div class="code-block">
+            EXPLAIN FORMAT=JSON
+            SELECT c.name, o.order_date
+            FROM customers c
+            JOIN orders o ON c.id = o.customer_id;
+        </div>
+
+        <h2>关键指标</h2>
+        <ul>
+            <li><span class="highlight">join_type</span>：eq_ref最佳</li>
+            <li>possible_keys：可用索引</li>
+            <li>rows：扫描行数</li>
+            <li>Extra：Using join buffer?</li>
+        </ul>
+
+        <div class="warning">
+            ❗ Using filesort → 增加ORDER BY索引<br>
+            ❗ Using temporary → 优化GROUP BY
+        </div>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+
+<!-- 卡片5：参数调优 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>参数调优</h1>
+        <h2>关键配置(my.cnf)</h2>
+        <div class="code-block">
+            默认256K)
+            join_buffer_size = 256M
+
+            # 排序缓冲区
+            sort_buffer_size = 4M
+
+            # 随机读优化
+            read_rnd_buffer_size = 4M
+        </div>
+
+        <h2>临时表优化</h2>
+        <div class="code-block">
+            -- 确保内存临时表
+            SET tmp_table_size = 64M;
+            SET max_heap_table_size = 64M;
+        </div>
+
+        <p>根据服务器内存调整，避免磁盘溢出</p>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+
+<!-- 卡片6：最佳实践 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>最佳实践总结</h1>
+        <ul>
+            <li>✅ 所有<span class="highlight">JOIN字段必须有索引</span></li>
+            <li>✅ 小表驱动大表</li>
+            <li>✅ JOIN前先用WHERE过滤</li>
+            <li>✅ 避免SELECT *</li>
+            <li>✅ 监控慢查询日志</li>
+        </ul>
+
+        <h2>特殊场景处理</h2>
+        <div class="code-block">
+            -- 数据倾斜处理
+            SELECT * FROM users u JOIN orders o
+            WHERE u.id = 热点ID
+
+            UNION ALL o
+            WHERE u.id != 热点ID;
+        </div>
+
+        <p class="highlight">多表JOIN建议不超过5-7个表</p>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+</body>
+</html>

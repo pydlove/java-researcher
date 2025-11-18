@@ -3,256 +3,397 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>墨墨说-计算机 | 流水线技术精讲</title>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <title>墨墨说-Java：计算机核心架构图解</title>
     <style>
+        /* 全局样式 */
         body {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 25px;
             padding: 20px;
-            background-color: #F0F8FF;
+            background: linear-gradient(135deg, #F0F8FF 0%, #F0FFF5 100%);
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            justify-content: center;
         }
+
+        /* 卡片基础样式 */
         .card {
             width: 450px;
             height: 600px;
+            background-color: white;
             border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
         }
-        .header {
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* 顶部装饰区 */
+        .top-decoration {
             height: 20px;
-            background: linear-gradient(90deg, #6B8EFF, #1E90FF);
-            border-bottom: 2px dashed #fff;
+            background: linear-gradient(90deg, #FF9A8B, #FF6B6B, #FF8E53);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 30px;
         }
+        .ring {
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* 主内容区 */
         .content {
             padding: 25px;
-            height: 450px;
+            flex: 1;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
-        .footer {
+
+        /* 底部标签区 */
+        .bottom-bar {
             height: 60px;
-            background: linear-gradient(90deg, #1E90FF, #00BFFF);
+            background: linear-gradient(90deg, #FF6B6B, #FF8E53);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
         }
+
+        /* 文字样式 */
         h1 {
-            color: #1A1A1A;
-            font-size: 24px;
-            margin-bottom: 20px;
-            border-left: 5px solid #1E90FF;
-            padding-left: 15px;
+            color: #FF6B6B;
+            font-size: 26px;
+            margin: 0 0 20px 0;
+            font-weight: 700;
+            line-height: 1.3;
+            background: linear-gradient(90deg, #FF6B6B, #FF8E53);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
+
+        h2 {
+            color: #FF8E53;
+            font-size: 18px;
+            margin: 15px 0 10px;
+            font-weight: 600;
+            border-left: 4px solid #FF8E53;
+            padding-left: 10px;
+        }
+
         p {
             color: #333333;
-            font-size: 14px;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 15px;
         }
+
         .highlight {
-            background-color: rgba(107, 142, 255, 0.3);
-            padding: 0.1em 0.3em;
-            border-radius: 3px;
+            background-color: rgba(100, 200, 255, 0.3);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-weight: 500;
         }
+
+        /* 代码块样式 */
         .code-block {
-            background-color: #2B2B2B;
-            color: #F0F8FF;
+            background-color: #f8f9fa;
+            border-radius: 8px;
             padding: 15px;
-            border-radius: 8px;
             font-family: Consolas, Monaco, "Courier New", monospace;
-            font-size: 13px;
-            line-height: 1.5;
+            font-size: 14px;
             margin: 15px 0;
-            white-space: pre;
+            overflow: hidden;
+            border-left: 4px solid #FF8E53;
         }
-        .formula {
-            background-color: #E6F0FF;
-            padding: 5px;
+
+        .code-line {
+            white-space: pre-wrap;
+            margin-bottom: 4px;
+            line-height: 1.5;
+        }
+
+        /* 图表区域 */
+        .diagram {
+            background-color: #FFF5F5;
             border-radius: 8px;
-            margin: 5px 0;
-            font-family: "Courier New", monospace;
-            text-align: left;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            border: 1px dashed #FF6B6B;
         }
-        .page-indicator {
-            position: absolute;
-            bottom: 80px;
-            right: 25px;
-            color: #1E90FF;
+
+        .diagram-title {
+            color: #FF6B6B;
             font-weight: bold;
+            margin-bottom: 10px;
         }
-        .example {
-            background-color: #F0FFF0;
-            padding: 5px;
-            border-radius: 8px;
+
+        /* 速记口诀 */
+        .mnemonic {
+            background-color: #F0FFF5;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .mnemonic p {
+            color: #2B2B2B;
             margin: 5px 0;
-            border-left: 3px solid #32CD32;
+            font-size: 15px;
+        }
+
+        /* 互动区域 */
+        .qa {
+            background-color: #F0F8FF;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .question {
+            color: #FF6B6B;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .answer {
+            color: #333333;
+        }
+
+        /* 封面卡特殊样式 */
+        .cover-card {
+            background: linear-gradient(135deg, #FF9A8B 0%, #FF6B6B 50%, #FF8E53 100%);
+        }
+
+        .cover-content {
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .cover-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .cover-subtitle {
+            font-size: 18px;
+            margin-bottom: 30px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+
+        .cover-highlight {
+            background-color: rgba(255,255,255,0.3);
+            padding: 0.3em 0.6em;
+            border-radius: 20px;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 <!-- 封面卡 -->
-<div class="card" style="background: linear-gradient(135deg, #6B8EFF, #1E90FF);">
-    <div class="header"></div>
-    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; color: white;">
-        <h1 style="color: white; font-size: 32px; text-align: center;">计算机流水线技术</h1>
-        <p style="font-size: 18px; text-align: center;">3分钟掌握<span class="highlight">核心考点</span></p>
-        <div style="margin-top: 30px; background-color: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px;">
-            <p style="text-align: center; font-weight: bold;">组成结构 · 执行原理</p>
-            <p style="text-align: center;">吞吐率 · 加速比</p>
+<div class="card cover-card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
+    <div class="content cover-content">
+        <h1 class="cover-title">💻计算机核心架构</h1>
+        <p class="cover-subtitle">3分钟掌握<span class="cover-highlight">计算机工作原理</span>的核心秘密</p>
+        <div class="diagram" style="background-color: rgba(255,255,255,0.2); border-color: white;">
+            <p style="color: white;">"主机算控存，外设输存出"</p>
+            <p style="color: white;">数据绿线走，黑线控全局</p>
         </div>
     </div>
-    <div class="footer">墨墨说-计算机 | 流水线精讲</div>
+    <div class="bottom-bar" style="background: rgba(0,0,0,0.2);">
+        墨墨说-Java · 架构图解系列
+    </div>
 </div>
 
-<!-- 组成结构卡 -->
-<div class="card" style="background-color: #FFF5F5;">
-    <div class="header"></div>
+<!-- 核心内容卡1：两大模块 -->
+<div class="card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
     <div class="content">
-        <h1>计算机组成结构</h1>
-        <p>计算机由<span class="highlight">外设</span>和<span class="highlight">主机</span>两部分组成：</p>
+        <h1>计算机两大核心模块</h1>
 
-        <div class="code-block">外设:
-    输入设备; 辅助存储器; 输出设备;
+        <div class="diagram">
+            <p class="diagram-title">🔴 主机系统（红色虚线框）</p>
+            <p>CPU + 主存储器</p>
+        </div>
 
-主机:
-    CPU: 运算器; 控制器;
-    主存储器;
-</div>
+        <div class="diagram">
+            <p class="diagram-title">🟡 外设系统（横向虚线框）</p>
+            <p>输入/输出设备 + 辅助存储器</p>
+        </div>
 
-        <p><span class="highlight">信息流向：</span></p>
-        <p>• 绿色箭头：数据流</p>
-        <p>• 黑色实线：控制流</p>
-        <p>• 黑色虚线：地址/指令流</p>
+        <div class="code-block">
+            <div class="code-line">// 主机与外设的区别：</div>
+            <div class="code-line">1. 主机：核心计算部件</div>
+            <div class="code-line">2. 外设：扩展功能设备</div>
+            <div class="code-line">3. 通过总线连接</div>
+        </div>
     </div>
-    <div class="footer">墨墨说-计算机 | 组成结构</div>
-    <div class="page-indicator">1/6</div>
+    <div class="bottom-bar">
+        墨墨说-Java · 架构图解系列
+    </div>
 </div>
 
-<!-- 流水线概念卡 -->
-<div class="card" style="background-color: #F0FFF5;">
-    <div class="header"></div>
+<!-- 核心内容卡2：CPU详解 -->
+<div class="card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
     <div class="content">
-        <h1>流水线基本概念</h1>
-        <p>流水线是<span class="highlight">多条指令重叠操作</span>的准并行处理技术：</p>
-        <p>• 各部件同时处理不同指令的不同部分</p>
-        <p>• 提高部件利用率和指令平均执行速度</p>
+        <h1>CPU：计算机的大脑</h1>
 
-        <div class="example">
-            <p>示例：取指(1ms)、分析(1ms)、执行(1ms)</p>
-            <p>3条指令串行执行：9ms</p>
-            <p>流水线执行：5ms</p>
+        <h2>🔵 运算器（蓝灰色）</h2>
+        <p>执行<span class="highlight">算术与逻辑运算</span></p>
+        <div class="code-block">
+            <div class="code-line">// 典型运算示例：</div>
+            <div class="code-line">int sum = a + b;  // 算术运算</div>
+            <div class="code-line">if (x > y) {     // 逻辑运算</div>
+            <div class="code-line">    // 执行分支</div>
+            <div class="code-line">}</div>
         </div>
 
-        <p><span class="highlight">核心参数：</span></p>
-        <p>• 执行时间计算</p>
-        <p>• 吞吐率</p>
-        <p>• 加速比</p>
+        <h2>🟣 控制器（紫色）</h2>
+        <p>通过<span class="highlight">黑色实线</span>控制信号指挥各部件</p>
+        <div class="code-block">
+            <div class="code-line">// 控制器工作流程：</div>
+            <div class="code-line">1. 取指令</div>
+            <div class="code-line">2. 分析指令</div>
+            <div class="code-line">3. 执行指令</div>
+        </div>
     </div>
-    <div class="footer">墨墨说-计算机 | 流水线概念</div>
-    <div class="page-indicator">2/6</div>
+    <div class="bottom-bar">
+        墨墨说-Java · 架构图解系列
+    </div>
 </div>
 
-<!-- 执行时间卡 -->
-<div class="card" style="background-color: #F0F8FF;">
-    <div class="header"></div>
+<!-- 核心内容卡3：存储器 -->
+<div class="card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
     <div class="content">
-        <h1>流水线执行时间</h1>
-        <p><span class="highlight">流水线周期：</span>执行时间最长的一段</p>
+        <h1>存储器层级结构</h1>
 
-        <div class="formula">
-            <p>理论公式：\[$(t_1 + t_2 + ... + t_k) + (n-1)*t$\]</p>
-            <p>实践公式：\[$k*t + (n-1)*t$\]</p>
+        <h2>🔵 主存储器（内存）</h2>
+        <p><span class="highlight">临时存储</span>运行中的程序和数据</p>
+        <div class="code-block">
+            <div class="code-line">// 内存特点：</div>
+            <div class="code-line">1. 与CPU直接交互</div>
+            <div class="code-line">2. 速度快但容量小</div>
+            <div class="code-line">3. 断电后数据丢失</div>
         </div>
 
-        <div class="example">
-            <p>例题：</p>
-            <p>取指=3Δt，分析=2Δt，执行=4Δt</p>
-            <p>10条指令：</p>
-            <p>串行：(3+2+4)×10 = 90Δt</p>
-            <p>流水线：4Δt×3 + (10-1)×4 = 48Δt</p>
+        <h2>🔴 辅助存储器（外存）</h2>
+        <p><span class="highlight">长期存储</span>数据的设备</p>
+        <div class="code-block">
+            <div class="code-line">// 外存特点：</div>
+            <div class="code-line">1. 容量大但速度慢</div>
+            <div class="code-line">2. 断电数据不丢失</div>
+            <div class="code-line">3. 需调入内存使用</div>
         </div>
     </div>
-    <div class="footer">墨墨说-计算机 | 执行时间</div>
-    <div class="page-indicator">3/6</div>
+    <div class="bottom-bar">
+        墨墨说-Java · 架构图解系列
+    </div>
 </div>
 
-<!-- 吞吐率卡 -->
-<div class="card" style="background-color: #FFF5F5;">
-    <div class="header"></div>
+<!-- 核心内容卡4：数据流动 -->
+<div class="card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
     <div class="content">
-        <h1>流水线吞吐率</h1>
-        <p><span class="highlight">定义：</span>单位时间完成的任务数</p>
+        <h1>三大数据流动方向</h1>
 
-        <div class="formula">
-            <p>基本公式：</p>
-            <p>\[ TP = \frac{\text{指令条数}}{\text{流水线执行时间}} \]</p>
-            <p>最大吞吐率：</p>
-            <p>\[ TP_{\max} = \frac{1}{t} \]</p>
+        <h2>🟢 数据流（绿色实线）</h2>
+        <div class="code-block">
+            <div class="code-line">输入设备 → 主存 → 运算器</div>
+            <div class="code-line">→ 输出设备</div>
         </div>
 
-        <div class="example">
-            <p>例题：</p>
-            <p>取指=3Δt，分析=2Δt，执行=4Δt，10条指令吞吐率：</p>
-            <p>\[$TP = \frac{10}{48Δt} ≈ 0.208/Δt$\]</p>
-            <p>\[$TP_{max} = \frac{1}{4Δt}$\]</p>
+        <h2>⚫ 控制流（黑色实线）</h2>
+        <p>控制器 → <span class="highlight">所有部件</span></p>
+
+        <h2>⚫ 地址/指令流（黑色虚线）</h2>
+        <p>CPU ↔ 主存（读写指令）</p>
+
+        <div class="mnemonic">
+            <p>速记口诀：</p>
+            <p>"主机算控存，外设输存出"</p>
+            <p>"数据绿线走，黑线控全局"</p>
         </div>
     </div>
-    <div class="footer">墨墨说-计算机 | 吞吐率</div>
-    <div class="page-indicator">4/6</div>
+    <div class="bottom-bar">
+        墨墨说-Java · 架构图解系列
+    </div>
 </div>
 
-<!-- 加速比卡 -->
-<div class="card" style="background-color: #F0FFF5;">
-    <div class="header"></div>
-    <div class="content">
-        <h1>流水线加速比</h1>
-        <p><span class="highlight">定义：</span>串行时间与流水线时间之比</p>
-
-        <div class="formula">
-            <p>计算公式：</p>
-            <p>\[$S = \frac{串行执行时间}{流水线执行时间}$\]</p>
-        </div>
-
-        <div class="example">
-            <p>例题：</p>
-            <p>串行时间：90Δt</p>
-            <p>流水线时间：48Δt</p>
-            <p>加速比：</p>
-            <p>\[$S = \frac{90}{48} = 1.875$\]</p>
-        </div>
-
-        <p><span class="highlight">意义：</span>衡量流水线性能提升程度</p>
+<!-- 总结互动卡 -->
+<div class="card">
+    <div class="top-decoration">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
     </div>
-    <div class="footer">墨墨说-计算机 | 加速比</div>
-    <div class="page-indicator">5/6</div>
-</div>
-
-<!-- 总结卡 -->
-<div class="card" style="background: linear-gradient(135deg, #2587e7, #00BFFF); color: white;">
-    <div class="header"></div>
     <div class="content">
-        <h1 style="color: white;">流水线核心要点</h1>
+        <h1>核心要点总结</h1>
 
-        <div style="background-color: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-            <p>✓ 周期=最长段执行时间</p>
-            <p>✓ 理论公式：各段和+(n-1)*周期</p>
-            <p>✓ 实践公式：k*周期+(n-1)*周期</p>
+        <div class="code-block">
+            <div class="code-line">1. 计算机 = 主机 + 外设</div>
+            <div class="code-line">2. CPU = 运算器 + 控制器</div>
+            <div class="code-line">3. 存储器分主存和辅存</div>
+            <div class="code-line">4. 三大数据流动方向</div>
         </div>
 
-        <div style="background-color: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px;">
-            <p>✓ 吞吐率=指令数/流水线时间</p>
-            <p>✓ 最大吞吐率=1/周期</p>
-            <p>✓ 加速比=串行时间/流水线时间</p>
+        <div class="qa">
+            <p class="question">Q: 为什么程序必须加载到内存才能运行？</p>
+            <p class="answer">A: 因为<span class="highlight">CPU只能直接访问内存</span>，无法直接操作外存设备。</p>
         </div>
 
-        <p style="margin-top: 20px; text-align: center;">关注"墨墨说-计算机"获取更多干货</p>
+        <div class="qa">
+            <p class="question">Q: 控制器如何协调各部件工作？</p>
+            <p class="answer">A: 通过<span class="highlight">黑色实线控制信号</span>发送指令。</p>
+        </div>
     </div>
-    <div class="footer">墨墨说-计算机 | 总结互动</div>
-    <div class="page-indicator">6/6</div>
+    <div class="bottom-bar">
+        墨墨说-Java · 架构图解系列
+    </div>
 </div>
 </body>
 </html>

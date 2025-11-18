@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说-JVM GC流程</title>
+    <style>
+        body {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            background-color: #F0F8FF;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        .card {
+            width: 450px;
+            height: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            height: 20px;
+            background: linear-gradient(90deg, #FF9A8B, #FF6B6B);
+            position: relative;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background: #FF8E53;
+            border-radius: 0 5px 5px 0;
+        }
+        .content {
+            padding: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .footer {
+            height: 60px;
+            background: linear-gradient(90deg, #FF6B6B, #FF8E53);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        h1 {
+            color: #FF6B6B;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #FF8E53;
+            font-size: 18px;
+            margin: 15px 0 10px;
+        }
+        p, li {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .highlight {
+            background-color: rgba(255, 223, 0, 0.5);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+        .code-block {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 10px 0;
+            white-space: pre;
+        }
+        .page-indicator {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<!-- 封面卡 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #FF9A8B, #FF6B6B);">
+        <h1 style="color: white; font-size: 28px; text-align: center;">📢 面试必问</h1>
+        <h1 style="color: white; font-size: 28px; text-align: center;">JVM垃圾回收全流程</h1>
+        <p style="color: white; text-align: center; font-size: 16px;">程序员必知的垃圾回收机制</p>
+        <div class="code-block" style="background: rgba(255,255,255,0.2); color: white;">// 一次完整的GC旅程<br>
+if (object.isDead()) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;memory.recycle();<br>
+}</div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片1：GC触发条件 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>GC触发条件</h1>
+        <h2>新生代GC (Minor GC)</h2>
+        <p>当<span class="highlight">Eden区空间不足</span>时触发，回收Eden和Survivor区</p>
+
+        <h2>老年代GC (Full GC)</h2>
+        <ul>
+            <li>老年代空间不足（晋升失败）</li>
+            <li>方法区(Metaspace)空间不足</li>
+            <li>显式调用<span class="highlight">System.gc()</span></li>
+        </ul>
+
+        <div class="code-block">// 大对象直接进入老年代
+if (object.size > EdenThreshold) {
+    allocateInOldGen();
+} else {
+    allocateInEden();
+}</div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片2：新生代GC流程 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>新生代GC流程</h1>
+        <h2>1. 标记阶段</h2>
+        <p>从<span class="highlight">GC Roots</span>出发标记可达对象</p>
+        <p>使用卡表避免全量扫描老年代</p>
+
+        <h2>2. 复制阶段</h2>
+        <p>存活对象从Eden+From区复制到To区</p>
+        <p>年龄达到阈值(默认15)则晋升老年代</p>
+
+        <div class="code-block">// 复制算法伪代码
+for (Object obj : liveObjects) {
+    if (obj.age >= MAX_AGE) {
+        oldGen.add(obj);
+    } else {
+        toSpace.add(obj);
+        obj.age++;
+    }
+}</div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片3：老年代GC流程 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>老年代GC流程</h1>
+        <h2>1. 标记阶段</h2>
+        <p><span class="highlight">并发标记</span>（CMS/G1）：与用户线程并行</p>
+        <p>最终标记：短暂STW修正引用</p>
+
+        <h2>2. 清理阶段</h2>
+        <ul>
+            <li>标记-清除：产生内存碎片</li>
+            <li>标记-整理：压缩内存空间</li>
+        </ul>
+
+        <div class="code-block">// CMS并发标记伪代码
+void concurrentMark() {
+    while (!isMarkComplete()) {
+        markFromRoots();
+        yieldForAppThreads();
+    }
+}</div>
+        <p class="highlight">Full GC通常耗时100ms以上</p>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片4：GC器对比 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>GC器对比</h1>
+        <table style="width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px;">
+            <tr style="background: #f5f5f5;">
+                <th style="padding: 8px; text-align: left;">类型</th>
+                <th style="padding: 8px; text-align: left;">新生代</th>
+                <th style="padding: 8px; text-align: left;">老年代</th>
+                <th style="padding: 8px; text-align: left;">特点</th>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">Serial</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">复制</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">标记-整理</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">单线程</td>
+            </tr>
+            <tr style="background: #f5f5f5;">
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">Parallel</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">复制</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">标记-整理</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">吞吐优先</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">CMS</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">复制</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">标记-清除</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">低延迟</td>
+            </tr>
+            <tr style="background: #f5f5f5;">
+                <td style="padding: 8px;">G1</td>
+                <td style="padding: 8px;">分区复制</td>
+                <td style="padding: 8px;">分区整理</td>
+                <td style="padding: 8px;">平衡型</td>
+            </tr>
+        </table>
+
+        <p><span class="highlight">G1</span>适合大堆内存(6GB+)，平衡吞吐和延迟</p>
+        <p><span class="highlight">ZGC</span>适合TB级内存，停顿<10ms</p>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片5：优化建议 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>GC优化指南</h1>
+        <h2>关键指标</h2>
+        <ul>
+            <li><span class="highlight">停顿时间</span>：CMS/G1/ZGC表现优异</li>
+            <li><span class="highlight">吞吐量</span>：Parallel Scavenge最优</li>
+            <li>内存占用：ZGC需额外保留20%空间</li>
+        </ul>
+
+        <h2>优化方向</h2>
+        <div class="code-block">// JVM参数示例(JDK8)
+-XX:+UseG1GC               // 启用G1
+-XX:MaxGCPauseMillis=200   // 目标停顿时间
+-XX:G1HeapRegionSize=4m    // 分区大小</div>
+
+        <p><span class="highlight">避免</span>过早晋升：调整Survivor区大小</p>
+        <p><span class="highlight">减少</span>Full GC：增大老年代比例</p>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 总结卡 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>GC流程总结</h1>
+        <ul>
+            <li>Minor GC：高频，复制算法，STW短</li>
+            <li>Full GC：低频，标记-清除/整理，STW长</li>
+            <li>选择GC器需权衡<span class="highlight">吞吐</span>和<span class="highlight">延迟</span></li>
+        </ul>
+
+        <h2>实战检查清单</h2>
+        <p>✅ 监控GC日志</p>
+        <p>✅ 避免System.gc()</p>
+        <p>✅ 根据应用特性选择GC器</p>
+        <p>✅ 合理设置堆大小</p>
+
+        <div class="code-block" style="background: rgba(255, 154, 139, 0.1);">// 最佳实践
+if (isLowLatencyApp) {
+    useG1OrZGC();
+} else if (isThroughputFirst) {
+    useParallelGC();
+}</div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+</body>
+</html>

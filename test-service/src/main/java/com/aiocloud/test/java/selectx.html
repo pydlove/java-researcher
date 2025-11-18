@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说-避免SELECT *</title>
+    <style>
+        body {
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            background-color: #F0F8FF;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        .card {
+            width: 450px;
+            height: 600px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            height: 20px;
+            background: linear-gradient(90deg, #6B8EFF, #8E6BFF);
+            position: relative;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background: #6BFF8E;
+            border-radius: 0 5px 5px 0;
+        }
+        .content {
+            padding: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .footer {
+            height: 60px;
+            background: linear-gradient(90deg, #8E6BFF, #6BFF8E);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        h1 {
+            color: #6B8EFF;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #8E6BFF;
+            font-size: 18px;
+            margin: 15px 0 10px;
+        }
+        p, li {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .highlight {
+            background-color: rgba(107, 142, 255, 0.3);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+        .code-block {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .warning {
+            background-color: rgba(255, 107, 107, 0.1);
+            border-left: 4px solid #FF6B6B;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .tip {
+            background-color: rgba(107, 255, 142, 0.1);
+            border-left: 4px solid #6BFF8E;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<!-- 封面卡 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #6B8EFF, #8E6BFF);">
+        <h1 style="color: white; font-size: 28px; text-align: center;">禁用SELECT *的真相</h1>
+        <p style="color: white; text-align: center; font-size: 16px;">数据库性能提升20-50%的秘诀</p>
+        <div class="code-block" style="background: rgba(255,255,255,0.2); color: white;">
+            -- 低效写法<br>
+            SELECT * FROM users;<br><br>
+            -- 高效写法<br>
+            SELECT id, name FROM users;
+        </div>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+
+<!-- 卡片1：性能问题 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>性能问题</h1>
+        <h2>数据传输开销</h2>
+        <ul>
+            <li>网络传输量增加30-100%</li>
+            <li>客户端内存占用飙升</li>
+        </ul>
+
+        <div class="code-block">
+            -- 传输所有列(15列)
+            SELECT * FROM products;
+
+            -- 仅需3列
+            SELECT product_id, name, price
+            FROM products;
+        </div>
+
+        <h2>索引利用不足</h2>
+        <p><span class="highlight">覆盖索引失效</span>，强制回表查询</p>
+
+        <div class="warning">
+            ❗ 当查询只需要索引列时<br>
+            SELECT * 会导致额外I/O操作
+        </div>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+
+<!-- 卡片2：应用层问题 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>应用层问题</h1>
+        <h2>代码耦合性</h2>
+        <ul>
+            <li>隐式依赖列顺序</li>
+            <li>前端硬编码列名</li>
+        </ul>
+
+        <div class="code-block">
+            // 危险代码 - 依赖列顺序
+            String email = resultSet.getString(2);
+
+            // 安全代码 - 明确列名
+            String email = resultSet.getString("email");
+        </div>
+
+        <h2>维护困难</h2>
+        <p>表结构调整可能<span class="highlight">意外破坏功能</span></p>
+
+        <div class="warning">
+            ❗ 新增列可能导致<br>
+            前端显示错乱或API变更
+        </div>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+
+<!-- 卡片3：安全问题 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>安全问题</h1>
+        <h2>信息泄露风险</h2>
+        <ul>
+            <li>暴露密码哈希、手机号等</li>
+            <li>违反最小权限原则</li>
+        </ul>
+
+        <div class="code-block">
+            -- 危险！泄露敏感信息
+            SELECT * FROM users
+            WHERE username = 'admin';
+
+            -- 安全做法
+            SELECT user_id, username, avatar
+            FROM users WHERE username = 'admin';
+        </div>
+
+        <h2>扩大攻击面</h2>
+        <p>为SQL注入提供更多<span class="highlight">可利用信息</span></p>
+
+        <div class="warning">
+            ❗ 黑客可以通过错误信息<br>
+            获取表结构详情
+        </div>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+
+<!-- 卡片4：优化障碍 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>优化障碍</h1>
+        <h2>执行计划效率</h2>
+        <ul>
+            <li>优化器选择次优计划</li>
+            <li>内存排序成本增加</li>
+        </ul>
+
+        <div class="code-block">
+            -- 需要处理更多数据
+            SELECT * FROM logs
+            ORDER BY create_time DESC
+            LIMIT 100;
+        </div>
+
+        <h2>存储引擎影响</h2>
+        <p>对列式数据库性能<span class="highlight">影响极大</span></p>
+
+        <div class="warning">
+            ❗ ClickHouse等列式数据库<br>
+            SELECT * 性能极差
+        </div>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+
+<!-- 卡片5：例外场景 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>例外场景</h1>
+        <h2>可接受使用的情况</h2>
+        <ul>
+            <li>表列数少且固定</li>
+            <li>ETL全量数据处理</li>
+            <li>临时调试查询</li>
+        </ul>
+
+        <div class="code-block">
+            -- 配置表查询
+            SELECT * FROM sys_config;
+
+            -- ETL过程
+            SELECT * FROM source_table
+            FOR ETL PROCESSING;
+        </div>
+
+        <div class="tip">
+            💡 即使在这些场景下<br>
+            也建议尽快转为明确列名
+        </div>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+
+<!-- 卡片6：最佳实践 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>最佳实践</h1>
+        <h2>明确指定列</h2>
+        <div class="code-block">
+            -- 标准做法
+            SELECT user_id, username, email
+            FROM users
+            WHERE status = 'active';
+        </div>
+
+        <h2>使用视图控制</h2>
+        <div class="code-block">
+            CREATE VIEW v_public_users AS
+            SELECT id, name, avatar
+            FROM users;
+        </div>
+
+        <h2>ORM框架配置</h2>
+        <ul>
+            <li>禁用自动SELECT *</li>
+            <li>明确定义模型字段</li>
+        </ul>
+
+        <div class="tip">
+            💡 遵循这些实践可提升<br>
+            查询性能20-50%
+        </div>
+    </div>
+    <div class="footer">墨墨说-SQL</div>
+</div>
+</body>
+</html>

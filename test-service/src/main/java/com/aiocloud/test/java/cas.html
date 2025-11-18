@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说-CAS原子操作</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        body {
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            background-color: #F0F8FF;
+            justify-content: center;
+        }
+        .card {
+            width: 450px;
+            height: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            height: 20px;
+            background: linear-gradient(90deg, #4A90E2, #7B68EE);
+            position: relative;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background: #5D7B9D;
+            border-radius: 0 5px 5px 0;
+        }
+        .content {
+            padding: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .footer {
+            height: 60px;
+            background: linear-gradient(90deg, #4A90E2, #7B68EE);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        h1 {
+            color: #4A90E2;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #5D7B9D;
+            font-size: 18px;
+            margin: 15px 0 10px;
+        }
+        p, li {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .highlight {
+            background-color: rgba(74, 144, 226, 0.3);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+        .code-block {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 10px 0;
+            white-space: pre;
+        }
+        .warning {
+            background-color: rgba(255, 223, 0, 0.3);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .success {
+            background-color: rgba(107, 255, 142, 0.3);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .layer {
+            width: 90%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .hardware { background-color: #E6F3FF; }
+        .os { background-color: #C1E1FF; }
+        .user { background-color: #9BCFFF; }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 5px;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #f2f2f2;
+        }
+        .cpu-cores {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+        .core {
+            width: 70px;
+            text-align: center;
+            padding: 8px;
+            border-radius: 8px;
+            background: #F0F0F0;
+        }
+        .memory {
+            background: #E6F3FF;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<!-- 封面卡 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #4A90E2, #7B68EE);">
+        <h1 style="color: white; font-size: 28px; text-align: center;">面试必问：CAS如何保证原子性</h1>
+        <p style="color: white; text-align: center; font-size: 16px;">硬件与操作系统的联合保障</p>
+        <div class="code-block" style="background: rgba(255,255,255,0.2); color: white;">
+            // CAS操作伪代码<br>
+            bool CAS(int *addr, int expect, int new) {<br>
+            &nbsp;&nbsp;if (*addr == expect) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;*addr = new;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;return true;<br>
+            &nbsp;&nbsp;}<br>
+            &nbsp;&nbsp;return false;<br>
+            }
+        </div>
+    </div>
+    <div class="footer">墨墨说-并发编程</div>
+</div>
+
+<!-- 卡片1：CAS基本概念 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>CAS基本概念</h1>
+
+        <h2>Compare-And-Swap定义</h2>
+        <p>CAS是一种<span class="highlight">无锁编程</span>的核心原子操作，包含三个操作数：</p>
+        <ul>
+            <li><span class="highlight">内存位置（V）</span></li>
+            <li><span class="highlight">期望原值（A）</span></li>
+            <li><span class="highlight">新值（B）</span></li>
+        </ul>
+
+        <div class="code-block">// CAS操作逻辑
+if (V == A) {
+    V = B;    // 原子性执行
+    return true;
+} else { return false; }</div>
+
+        <h2>原子性保证</h2>
+        <p>整个比较和交换操作在<span class="highlight">单个不可中断的指令周期</span>内完成</p>
+
+        <div class="warning">
+            💡 CAS是现代并发库（如Java的Atomic类）的基础
+        </div>
+    </div>
+    <div class="footer">墨墨说-并发编程</div>
+</div>
+
+<!-- 卡片2：硬件层面实现 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>硬件层面实现</h1>
+
+        <h2>CPU原子指令</h2>
+        <table class="comparison-table">
+            <tr>
+                <th>架构</th>
+                <th>指令</th>
+                <th>特点</th>
+            </tr>
+            <tr>
+                <td>x86</td>
+                <td>CMPXCHG</td>
+                <td>带LOCK前缀保证多核原子性</td>
+            </tr>
+            <tr>
+                <td>ARM</td>
+                <td>LDREX/STREX</td>
+                <td>加载-存储独占指令对</td>
+            </tr>
+            <tr>
+                <td>RISC-V</td>
+                <td>LR/SC</td>
+                <td>加载保留/条件存储</td>
+            </tr>
+        </table>
+
+        <h2>多核同步机制</h2>
+        <div class="cpu-cores">
+            <div class="core">CPU Core 1</div>
+            <div class="core">CPU Core 2</div>
+            <div class="core">CPU Core 3</div>
+        </div>
+        <div class="memory">共享内存地址 0x1234</div>
+
+        <div class="code-block">; x86汇编示例
+mov eax, [old_value]    ; 期望值
+mov ebx, [new_value]     ; 新值
+lock cmpxchg [memory_address], ebx
+; LOCK前缀锁定内存总线</div>
+    </div>
+    <div class="footer">墨墨说-并发编程</div>
+</div>
+
+<!-- 卡片3：缓存一致性协议 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>缓存一致性保障</h1>
+
+        <h2>MESI协议</h2>
+        <p>多核CPU通过缓存一致性协议保证数据同步：</p>
+        <ul>
+            <li><span class="highlight">Modified（修改）</span>：缓存行已被修改</li>
+            <li><span class="highlight">Exclusive（独占）</span>：缓存行独占访问</li>
+            <li><span class="highlight">Shared（共享）</span>：缓存行被多个核心共享</li>
+            <li><span class="highlight">Invalid（无效）</span>：缓存行数据已失效</li>
+        </ul>
+
+        <h2>总线锁定 vs 缓存锁定</h2>
+        <table class="comparison-table">
+            <tr>
+                <th>方式</th>
+                <th>机制</th>
+                <th>性能</th>
+            </tr>
+            <tr>
+                <td>总线锁定</td>
+                <td>锁定整个内存总线</td>
+                <td>较低</td>
+            </tr>
+            <tr>
+                <td>缓存锁定</td>
+                <td>锁定特定缓存行</td>
+                <td>较高</td>
+            </tr>
+        </table>
+
+        <div class="code-block">// 现代CPU优先使用缓存锁定
+1. 检查目标地址是否在缓存行中
+2. 如果是，使用缓存锁定（MESI协议）
+3. 如果不是，退化为总线锁定
+4. 执行原子操作
+5. 释放锁定
+        </div>
+    </div>
+    <div class="footer">墨墨说-并发编程</div>
+</div>
+
+<!-- 卡片4：操作系统支持 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>操作系统层面支持</h1>
+
+        <div class="architecture">
+            <div class="layer hardware">硬件层</div>
+            <div style="margin: 5px;">↑↓ 系统调用</div>
+            <div class="layer os">操作系统层</div>
+            <div style="margin: 5px;">↑↓ API接口</div>
+            <div class="layer user">用户层</div>
+        </div>
+
+        <h2>中断与调度控制</h2>
+        <ul>
+            <li><span class="highlight">禁止中断</span>：单核环境下保证原子性</li>
+            <li><span class="highlight">禁止抢占</span>：防止任务切换打断操作</li>
+            <li><span class="highlight">内存屏障</span>：保证指令执行顺序</li>
+        </ul>
+    </div>
+    <div class="footer">墨墨说-并发编程</div>
+</div>
+
+<!-- 卡片5：内存屏障 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>内存屏障与顺序一致性</h1>
+
+        <h2>内存屏障类型</h2>
+        <table class="comparison-table">
+            <tr>
+                <th>屏障类型</th>
+                <th>作用</th>
+                <th>示例指令</th>
+            </tr>
+            <tr>
+                <td>LoadLoad</td>
+                <td>保证读操作顺序</td>
+                <td>lfence (x86)</td>
+            </tr>
+            <tr>
+                <td>StoreStore</td>
+                <td>保证写操作顺序</td>
+                <td>sfence (x86)</td>
+            </tr>
+            <tr>
+                <td>LoadStore</td>
+                <td>保证读后写顺序</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td>StoreLoad</td>
+                <td>保证写后读顺序</td>
+                <td>mfence (x86)</td>
+            </tr>
+        </table>
+
+        <h2>CAS中的内存屏障</h2>
+        <div class="code-block">// 隐含的内存屏障语义：
+1. StoreStore屏障（写前）
+2. CAS原子操作
+3. StoreLoad屏障（写后）
+</div>
+
+        <div class="warning">
+            ⚠️ 内存屏障防止指令重排序，确保多核间的可见性
+        </div>
+    </div>
+    <div class="footer">墨墨说-并发编程</div>
+</div>
+
+<!-- 卡片6：应用实践 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>应用实践与最佳实践</h1>
+
+        <h2>使用场景</h2>
+        <ul>
+            <li><span class="highlight">原子类</span>：AtomicInteger等</li>
+            <li><span class="highlight">无锁数据结构</span>：ConcurrentLinkedQueue</li>
+            <li><span class="highlight">同步器</span>：AQS实现基础</li>
+        </ul>
+
+        <h2>ABA问题解决方案</h2>
+        <div class="code-block">
+// 使用AtomicStampedReference解决ABA问题
+AtomicStampedReference<String> ref =
+new AtomicStampedReference<>("A", 0);
+
+// 更新时同时检查值和版本戳
+ref.compareAndSet("A", "B", 0, 1);
+        </div>
+
+        <div class="success">
+            ✅ CAS在无竞争情况下性能远高于锁
+        </div>
+    </div>
+    <div class="footer">墨墨说-并发编程</div>
+</div>
+</body>
+</html>

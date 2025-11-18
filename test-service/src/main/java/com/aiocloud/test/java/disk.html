@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说-磁盘满紧急处理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        body {
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            background-color: #FFF0F5;
+            justify-content: center;
+        }
+        .card {
+            width: 450px;
+            height: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            height: 20px;
+            background: linear-gradient(90deg, #FF6B6B, #FF8E53);
+            position: relative;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background: #FF6B8E;
+            border-radius: 0 5px 5px 0;
+        }
+        .content {
+            padding: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .footer {
+            height: 60px;
+            background: linear-gradient(90deg, #FF6B6B, #FF8E53);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        h1 {
+            color: #FF6B6B;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #FF8E53;
+            font-size: 18px;
+            margin: 15px 0 10px;
+        }
+        p, li {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .highlight {
+            background-color: rgba(255, 107, 107, 0.3);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+        .code-block {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 10px 0;
+            white-space: pre;
+        }
+        .warning {
+            background-color: rgba(255, 223, 0, 0.3);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #FFD700;
+        }
+        .danger {
+            background-color: rgba(255, 107, 107, 0.2);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #FF6B6B;
+        }
+        .success {
+            background-color: rgba(107, 255, 142, 0.3);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .emergency {
+            background-color: rgba(255, 107, 107, 0.1);
+            border: 2px solid #FF6B6B;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .step-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .step {
+            width: 90%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            text-align: center;
+            background: #FFE6E6;
+            font-weight: bold;
+        }
+        .arrow {
+            margin: 2px 0;
+            color: #FF6B6B;
+            font-weight: bold;
+        }
+        .file-tree {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #f2f2f2;
+        }
+        .disk-usage {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .disk-bar {
+            flex: 1;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+        .disk-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF6B6B, #FF8E53);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+<!-- 封面卡 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #FF6B6B, #FF8E53);">
+        <h1 style="color: white; font-size: 28px; text-align: center;">面试场景题：线上服务器磁盘100% 紧急处理</h1>
+        <p style="color: white; text-align: center; font-size: 16px;">Java应用服务器应急指南</p>
+        <div class="code-block" style="background: rgba(255,255,255,0.2); color: white;">
+            $ df -h<br>
+            Filesystem  Size  Used Avail Use%<br>
+            /dev/sda1    50G   50G   0B  100%  ← 紧急！
+        </div>
+    </div>
+    <div class="footer">墨墨说-运维应急</div>
+</div>
+
+<!-- 卡片1：快速诊断 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>快速诊断与确认</h1>
+
+        <div class="emergency">
+            ⚠️ 磁盘使用率100% - 立即处理！
+        </div>
+
+        <h2>1. 确认磁盘使用情况</h2>
+        <div class="code-block"># 查看磁盘使用率
+df -h
+
+# 输出示例：
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   50G   0B  100% /
+/dev/sdb1       100G   20G   80G   20% /data</div>
+
+        <h2>2. 定位大文件/目录</h2>
+<div class="code-block"># 查看当前目录大小
+du -sh *
+
+# 递归查找大目录
+du -h --max-depth=1 | sort -hr
+
+# 查找大于100M的文件
+find / -type f -size +100M -exec ls -lh {} \;</div>
+
+    </div>
+    <div class="footer">墨墨说-运维应急</div>
+</div>
+
+<!-- 卡片1：快速诊断 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>快速诊断与确认</h1>
+
+        <div class="emergency">
+            ⚠️ 磁盘使用率100% - 立即处理！
+        </div>
+
+        <h2>3. 检查Java应用相关文件</h2>
+        <div class="file-tree">
+            /app/<br>
+            ├── logs/<br>
+            │   ├── application.log (2.1G)  ← 嫌疑！<br>
+            │   └── gc.log (500M)<br>
+            ├── temp/<br>
+            │   └── upload_*.tmp (300M)<br>
+            └── cache/ (1.5G)
+        </div>
+    </div>
+    <div class="footer">墨墨说-运维应急</div>
+</div>
+
+<!-- 卡片2：立即缓解措施 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>立即缓解措施</h1>
+
+        <div class="step-flow">
+            <div class="step">1. 清理日志文件</div>
+            <div class="arrow">↓</div>
+            <div class="step">2. 删除临时文件</div>
+            <div class="arrow">↓</div>
+            <div class="step">3. 清理缓存文件</div>
+            <div class="arrow">↓</div>
+            <div class="step">4. 验证空间释放</div>
+        </div>
+
+    </div>
+    <div class="footer">墨墨说-运维应急</div>
+</div>
+<!-- 卡片2：立即缓解措施 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>立即缓解措施</h1>
+
+        <h2>1. 清理Java应用日志</h2>
+        <div class="code-block"># 清理大日志文件（先备份重要日志）
+cp /app/logs/application.log /tmp/backup/
+echo "" > /app/logs/application.log
+
+# 或直接删除（确认可删除）
+rm -f /app/logs/application.log.2023-*
+
+# 查找并清理旧日志
+find /app/logs -name "*.log.*" -mtime +7 -delete</div>
+
+        <h2>2. 删除临时文件</h2>
+        <div class="code-block"># 清理/tmp目录
+find /tmp -type f -mtime +1 -delete
+find /tmp -type d -empty -delete
+
+# 清理Java临时文件
+find /app/temp -name "*.tmp" -mtime +1 -delete
+
+# 清理Tomcat临时文件
+rm -rf /opt/tomcat/work/Catalina/*</div>
+
+    </div>
+    <div class="footer">墨墨说-运维应急</div>
+</div>
+
+<!-- 卡片4：长期解决方案 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>长期解决方案</h1>
+
+        <h2>1. 磁盘监控告警</h2>
+        <div class="code-block"># 监控脚本示例
+#!/bin/bash
+THRESHOLD=85
+CURRENT_USAGE=$(df / | awk 'NR==2 {print $5}' | sed 's/%//')
+
+if [ $CURRENT_USAGE -gt $THRESHOLD ]; then
+echo "警告: 磁盘使用率 ${CURRENT_USAGE}%"
+# 发送告警邮件/短信
+fi</div>
+
+        <h2>2. 定期维护脚本</h2>
+        <div class="code-block">#!/bin/bash
+# 每日清理脚本，清理30天前的日志
+find /app/logs -name "*.log.*" -mtime +30 -delete
+# 清理/tmp目录
+find /tmp -type f -mtime +7 -delete
+# 清理Tomcat临时文件
+find /opt/tomcat/work -name "*" -mtime +1 -delete
+echo "$(date): 磁盘清理完成" >> /var/log/cleanup.log</div>
+    </div>
+    <div class="footer">墨墨说-运维应急</div>
+</div>
+
+<!-- 卡片5：预防措施 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>预防措施</h1>
+
+        <h2>1. 监控体系建立</h2>
+        <ul>
+            <li><span class="highlight">磁盘使用率监控</span>：设置85%阈值告警</li>
+            <li><span class="highlight">日志增长率监控</span>：异常增长预警</li>
+            <li><span class="highlight">文件数量监控</span>：防止inode耗尽</li>
+            <li><span class="highlight">自动清理机制</span>：定时任务维护</li>
+        </ul>
+    </div>
+    <div class="footer">墨墨说-运维应急</div>
+</div>
+
+<!-- 卡片6：注意事项 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>注意事项与最佳实践</h1>
+
+        <div class="danger">
+            <h2>⚠️ 删除文件前的检查清单</h2>
+            <ul>
+                <li>确认文件是否被进程使用（lsof | grep deleted）</li>
+                <li>重要业务数据先备份再删除</li>
+                <li>确认文件创建时间和最后修改时间</li>
+                <li>通知相关团队成员</li>
+            </ul>
+        </div>
+
+        <h2>安全删除操作</h2>
+        <div class="code-block"># 安全删除步骤：
+1. 确认文件用途
+file /app/logs/big_file.log
+lsof /app/logs/big_file.log
+
+2. 备份重要文件
+cp /app/logs/big_file.log /tmp/backup/
+
+3. 清空而非直接删除（如果文件正在被写入）
+: > /app/logs/big_file.log
+
+4. 或使用logrotate安全轮转
+logrotate -f /etc/logrotate.d/myapp</div>
+
+    </div>
+    <div class="footer">墨墨说-运维应急</div>
+</div>
+
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>注意事项与最佳实践</h1>
+
+        <h2>预防性检查项</h2>
+        <div class="code-block"># 定期检查脚本
+#!/bin/bash
+echo "=== 磁盘健康检查 ==="
+df -h
+echo "=== 大文件检查 ==="
+find /app -type f -size +100M -exec ls -lh {} \;
+echo "=== 日志文件检查 ==="
+ls -lh /app/logs/ | head -10
+echo "=== 临时文件检查 ==="
+find /tmp -type f -mtime +1 | wc -l</div>
+
+        <div class="success">
+            ✅ 最佳实践：建立定期磁盘检查机制，<br>
+            提前发现问题，避免紧急处理
+        </div>
+    </div>
+    <div class="footer">墨墨说-运维应急</div>
+</div>
+</body>
+</html>

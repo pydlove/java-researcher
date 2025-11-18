@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说-雪花算法</title>
+    <style>
+        body {
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            background-color: #F0F8FF;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            justify-content: center;
+        }
+        .card {
+            width: 450px;
+            height: 600px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            height: 20px;
+            background: linear-gradient(90deg, #4A90E2, #7B68EE);
+            position: relative;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background: #5D7B9D;
+            border-radius: 0 5px 5px 0;
+        }
+        .content {
+            padding: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .footer {
+            height: 60px;
+            background: linear-gradient(90deg, #4A90E2, #7B68EE);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        h1 {
+            color: #4A90E2;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #5D7B9D;
+            font-size: 18px;
+            margin: 15px 0 10px;
+        }
+        p, li {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .highlight {
+            background-color: rgba(74, 144, 226, 0.2);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+        .code-block {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 10px 0;
+            white-space: pre;
+        }
+        .warning {
+            background-color: rgba(255, 223, 0, 0.3);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .structure {
+            display: flex;
+            flex-direction: column;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .bit-row {
+            display: flex;
+            height: 40px;
+        }
+        .bit-cell {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid #ddd;
+            font-size: 12px;
+            text-align: center;
+        }
+        .bit-cell:last-child {
+            border-right: none;
+        }
+        .bit-1 { background-color: #E6F3FF; }
+        .bit-41 { background-color: #C1E1FF; }
+        .bit-10 { background-color: #9BCFFF; }
+        .bit-12 { background-color: #76BDFF; }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<!-- 封面卡 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #4A90E2, #7B68EE);">
+        <h1 style="color: white; font-size: 28px; text-align: center;">​面试必问：分布式ID怎么生成才能又快又唯一？​</h1>
+        <p style="color: white; text-align: center; font-size: 22px;">雪花算法</p>
+    </div>
+    <div class="footer">墨墨说-分布式系统</div>
+</div>
+
+<!-- 卡片1：核心结构 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>核心结构</h1>
+        <p>雪花算法生成64位Long类型ID，结构如下：</p>
+
+        <div class="structure">
+            <div class="bit-row">
+                <div class="bit-cell bit-1">1位<br>符号位</div>
+                <div class="bit-cell bit-41">41位<br>时间戳</div>
+                <div class="bit-cell bit-10">10位<br>机器ID</div>
+                <div class="bit-cell bit-12">12位<br>序列号</div>
+            </div>
+        </div>
+
+        <h2>各部分说明</h2>
+        <ul>
+            <li><span class="highlight">符号位</span>：固定为0（保证ID为正数）</li>
+            <li><span class="highlight">时间戳</span>：毫秒级时间差（从自定义起始时间计算）</li>
+            <li><span class="highlight">机器ID</span>：可拆分为5位数据中心ID + 5位机器ID</li>
+            <li><span class="highlight">序列号</span>：同一毫秒内的自增序号（0-4095）</li>
+        </ul>
+
+        <div class="warning">
+            ⚠️ 最多支持1024个节点，每节点每毫秒生成4096个ID
+        </div>
+    </div>
+    <div class="footer">墨墨说-分布式系统</div>
+</div>
+
+<!-- 卡片3：核心优势 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>核心优势</h1>
+
+        <table class="comparison-table">
+            <tr>
+                <th>特性</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>全局唯一</td>
+                <td>通过时间戳+机器ID+序列号组合避免冲突</td>
+            </tr>
+            <tr>
+                <td>趋势递增</td>
+                <td>高位为时间戳，利于数据库索引优化</td>
+            </tr>
+            <tr>
+                <td>高性能</td>
+                <td>本地生成无网络IO，单机每秒可生成数百万ID</td>
+            </tr>
+            <tr>
+                <td>灵活可配置</td>
+                <td>可调整各部分的位数分配</td>
+            </tr>
+        </table>
+
+        <h2>与UUID对比</h2>
+        <ul>
+            <li><span class="highlight">有序性</span>：雪花ID趋势递增，UUID完全无序</li>
+            <li><span class="highlight">存储效率</span>：雪花ID为Long类型(8字节)，UUID为字符串(36字节)</li>
+            <li><span class="highlight">索引性能</span>：有序ID在数据库索引中性能更优</li>
+        </ul>
+    </div>
+    <div class="footer">墨墨说-分布式系统</div>
+</div>
+
+<!-- 卡片4：应用场景 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>典型应用场景</h1>
+
+        <h2>1. 分布式系统主键</h2>
+        <p>MySQL、MongoDB等数据库的分布式主键</p>
+
+        <h2>2. 订单号/交易号</h2>
+        <p>结合业务前缀生成可读性ID</p>
+        <div class="code-block">
+// 订单号生成示例
+String orderNo = "ORDER_" + snowflake.nextId();
+// 结果: ORDER_1357924680123456
+        </div>
+
+        <h2>3. 日志追踪</h2>
+        <p>作为请求链路中的唯一TraceID</p>
+    </div>
+    <div class="footer">墨墨说-分布式系统</div>
+</div>
+
+<!-- 卡片5：注意事项 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>注意事项</h1>
+
+        <h2>1. 时钟回拨问题</h2>
+        <p>服务器时间倒退会导致ID重复</p>
+        <div class="code-block">// 简单处理方案
+if (timestamp < lastTimestamp) {throw new RuntimeException("时钟回拨异常"); }</div>
+
+        <h2>2. 机器ID分配</h2>
+        <p>需确保不同节点的机器ID不重复</p>
+        <ul>
+            <li>通过ZooKeeper分配</li>
+            <li>通过数据库分配</li>
+            <li>配置文件手动指定</li>
+        </ul>
+
+        <h2>3. 时间戳耗尽</h2>
+        <p>41位时间戳约可用69年（从起始时间算起）</p>
+        <div class="warning">
+            ⚠️ 需合理选择起始时间点，避免过早耗尽
+        </div>
+    </div>
+    <div class="footer">墨墨说-分布式系统</div>
+</div>
+
+<!-- 卡片6：替代方案 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>替代方案</h1>
+
+        <h2>1. 号段模式（如美团Leaf）</h2>
+        <p>从数据库获取ID号段，本地缓存使用</p>
+        <div class="code-block">
+// 号段表示例
++----+------------+-----------+
+| id | biz_tag   | max_id    |
++----+------------+-----------+
+| 1  | order     | 1000000   |
++----+------------+-----------+
+// 应用获取号段1000001-1001000
+        </div>
+
+        <h2>2. Redis原子递增</h2>
+        <p>利用Redis的原子操作生成ID</p>
+
+        <h2>3. 数据库序列</h2>
+        <p>使用数据库自增序列或序列对象</p>
+    </div>
+    <div class="footer">墨墨说-分布式系统</div>
+</div>
+</body>
+</html>

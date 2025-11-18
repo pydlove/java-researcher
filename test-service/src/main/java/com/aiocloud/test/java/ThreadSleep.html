@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说-Thread.sleep(0)</title>
+    <style>
+        body {
+            /*display: flex;*/
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            background-color: #F0FFF5;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        .card {
+            width: 450px;
+            height: 600px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            height: 20px;
+            background: linear-gradient(90deg, #FF9A8B, #FF6B6B);
+            position: relative;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background: #FF8E53;
+            border-radius: 0 5px 5px 0;
+        }
+        .content {
+            padding: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .footer {
+            height: 60px;
+            background: linear-gradient(90deg, #FF6B6B, #FF8E53);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        h1 {
+            color: #FF6B6B;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #FF8E53;
+            font-size: 18px;
+            margin: 15px 0 10px;
+        }
+        p, li {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .highlight {
+            background-color: rgba(255, 107, 107, 0.3);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+        .code-block {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 10px 0;
+            white-space: pre;
+        }
+        .warning {
+            background-color: rgba(255, 223, 0, 0.3);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .comparison {
+            display: flex;
+            margin: 10px 0;
+        }
+        .comparison-item {
+            flex: 1;
+            padding: 10px;
+        }
+        .comparison-item.good {
+            background-color: rgba(107, 255, 142, 0.1);
+            border-left: 3px solid #6BFF8E;
+        }
+        .comparison-item.bad {
+            background-color: rgba(255, 107, 107, 0.1);
+            border-left: 3px solid #FF6B6B;
+        }
+    </style>
+</head>
+<body>
+<!-- 封面卡 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #FF6B6B, #FF8E53);">
+        <h1 style="color: white; font-size: 28px; text-align: center;">面试加分项：Thread.sleep(0)的真正作用​</h1>
+        <p style="color: white; text-align: center; font-size: 16px;">让线程优雅让出CPU的技巧</p>
+        <div class="code-block" style="background: rgba(255,255,255,0.2); color: white;">
+            // 看似休眠0毫秒<br>
+            Thread.sleep(0);<br>
+            // 实际触发线程调度
+        </div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片1：核心作用 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>核心作用</h1>
+        <h2>1. 主动放弃CPU时间片</h2>
+        <p>即使参数为0，也会<span class="highlight">立即释放CPU</span>，让操作系统重新调度线程</p>
+
+        <h2>2. 调度提示</h2>
+        <p>在计算密集型任务中提高<span class="highlight">线程调度公平性</span></p>
+
+        <div class="code-block">// 在忙等待循环中使用
+while (!taskFinished) {
+    Thread.sleep(0); // 避免空转
+}</div>
+
+        <div class="warning">
+            ⚠️ 会抛出InterruptedException<br>
+            必须处理中断
+        </div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片2：与yield对比 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>与yield()的区别</h1>
+        <div class="comparison">
+            <div class="comparison-item good">
+                <h3>sleep(0)</h3>
+                <ul>
+                    <li>native方法</li>
+                    <li>总会释放CPU</li>
+                    <li>触发系统调度</li>
+                </ul>
+            </div>
+            <div class="comparison-item bad">
+                <h3>yield()</h3>
+                <ul>
+                    <li>JVM实现相关</li>
+                    <li>只是建议</li>
+                    <li>可能无效</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>Linux下的实现差异</h2>
+        <div class="code-block">// sleep(0)的Linux实现
+void os::sleep(Thread* thread, long ms) {
+    if (ms == 0) {
+        os::naked_short_nanosleep(); // 触发调度
+    } else { // 正常休眠逻辑 }
+}</div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片3：使用场景 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>典型使用场景</h1>
+        <h2>1. 忙等待优化</h2>
+        <div class="code-block">// 优化前 - 空转消耗CPU
+while (!ready) {}
+
+// 优化后 - 定期让出CPU
+while (!ready) {
+    Thread.sleep(0);
+}</div>
+
+        <h2>2. 计算密集型任务</h2>
+        <p>在长时间计算中插入sleep(0)，<span class="highlight">避免独占CPU</span></p>
+
+        <div class="code-block">void heavyCalculation() {
+    for (int i = 0; i < 1_000_000; i++) {
+        compute(i);
+        if (i % 1000 == 0) {
+            Thread.sleep(0); // 每1000次让出CPU
+        }
+    }
+}</div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片4：实现原理 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>底层原理</h1>
+        <h2>1. 系统调用触发</h2>
+        <p>sleep(0)会触发<span class="highlight">nanosleep系统调用</span>，即使时间为0</p>
+
+        <h2>2. 调度器行为</h2>
+        <ul>
+            <li>当前线程状态变为就绪</li>
+            <li>操作系统重新选择运行线程</li>
+            <li>原线程可能再次被选中</li>
+        </ul>
+
+        <div class="code-block">// HotSpot虚拟机实现
+void os::naked_short_nanosleep() {
+    pthread_yield(); // Linux下调用pthread_yield
+    // 或等价系统调用
+}</div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片5：注意事项 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>注意事项</h1>
+        <h2>1. 中断处理</h2>
+        <p>必须捕获<span class="highlight">InterruptedException</span></p>
+        <div class="code-block">try {
+    Thread.sleep(0);
+} catch (InterruptedException e) {
+    Thread.currentThread().interrupt();
+    // 恢复中断状态
+}</div>
+
+        <h2>2. 过度使用问题</h2>
+        <ul>
+            <li>频繁调用增加上下文切换</li>
+            <li>在I/O密集型任务中可能降低性能</li>
+        </ul>
+
+        <div class="warning">
+            ⚠️ 不应替代正常的线程同步机制<br>
+            如wait/notify或Lock
+        </div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+
+<!-- 卡片6：最佳实践 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>最佳实践</h1>
+        <h2>适用场景</h2>
+        <ul>
+            <li>自旋锁优化</li>
+            <li>无阻塞任务协调</li>
+            <li>计算密集型任务分片</li>
+        </ul>
+
+        <h2>替代方案</h2>
+        <div class="code-block">
+// 使用LockSupport更高效
+LockSupport.parkNanos(1);
+
+// 或使用yield（但效果不确定）
+Thread.yield();
+        </div>
+    </div>
+    <div class="footer">墨墨说-Java</div>
+</div>
+</body>
+</html>

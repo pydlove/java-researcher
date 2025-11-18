@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨墨说-MySQL千万级优化</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        body {
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            background-color: #F0F8FF;
+            justify-content: center;
+        }
+        .card {
+            width: 450px;
+            height: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            height: 20px;
+            background: linear-gradient(90deg, #4A90E2, #7B68EE);
+            position: relative;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background: #5D7B9D;
+            border-radius: 0 5px 5px 0;
+        }
+        .content {
+            padding: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .footer {
+            height: 60px;
+            background: linear-gradient(90deg, #4A90E2, #7B68EE);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        h1 {
+            color: #4A90E2;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #5D7B9D;
+            font-size: 18px;
+            margin: 15px 0 10px;
+        }
+        p, li {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .highlight {
+            background-color: rgba(74, 144, 226, 0.3);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+        .code-block {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 10px 0;
+            white-space: pre;
+        }
+        .warning {
+            background-color: rgba(255, 223, 0, 0.3);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .success {
+            background-color: rgba(107, 255, 142, 0.3);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .phase-indicator {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+        .phase {
+            text-align: center;
+            padding: 8px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .phase-1 { background: #E6F3FF; }
+        .phase-2 { background: #C1E1FF; }
+        .phase-3 { background: #9BCFFF; }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #f2f2f2;
+        }
+        .cost-benefit {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .benefit-item {
+            background: #F0F8FF;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .optimization-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .flow-step {
+            width: 90%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .step-1 { background: #E6F3FF; }
+        .step-2 { background: #C1E1FF; }
+        .step-3 { background: #9BCFFF; }
+        .arrow {
+            margin: 2px 0;
+            color: #4A90E2;
+        }
+    </style>
+</head>
+<body>
+<!-- 封面卡 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #4A90E2, #7B68EE);">
+        <h1 style="color: white; font-size: 28px; text-align: center;">MySQL千万级优化</h1>
+        <p style="color: white; text-align: center; font-size: 16px;">三阶段优化策略</p>
+        <div class="code-block" style="background: rgba(255,255,255,0.2); color: white;">
+-- 优化路径<br>
+阶段1: SQL与索引优化<br>
+阶段2: 表结构与存储优化<br>
+阶段3: 架构与系统优化
+        </div>
+    </div>
+    <div class="footer">墨墨说-MySQL</div>
+</div>
+
+<!-- 卡片1：第一阶段优化策略 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>第一阶段：低成本优化</h1>
+        <div class="phase-indicator">
+            <div class="phase phase-1">SQL与索引层面</div>
+        </div>
+
+        <div class="success">
+            ✅ 代价最小，效果最明显 - 优先执行
+        </div>
+
+        <h2>1. SQL查询优化</h2>
+        <div class="code-block">-- 避免 SELECT *
+SELECT id, name, email FROM users;  -- 好
+SELECT * FROM users;                 -- 差</div>
+
+        <h2>2. 索引优化原则</h2>
+        <ul>
+            <li><span class="highlight">最左前缀</span>：联合索引(a,b,c)支持a、a,b、a,b,c查询</li>
+            <li><span class="highlight">覆盖索引</span>：索引包含查询所需全部字段</li>
+            <li><span class="highlight">高选择性</span>：区分度高的列建索引</li>
+        </ul>
+
+        <div class="warning">
+            💡 使用EXPLAIN分析执行计划，重点关注type、key、rows列
+        </div>
+    </div>
+    <div class="footer">墨墨说-MySQL</div>
+</div>
+
+<!-- 卡片2：SQL优化细节 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>SQL优化细节</h1>
+
+        <h2>1. 避免索引失效操作</h2>
+        <div class="code-block">-- 导致索引失效的情况
+WHERE DATE(create_time) = '2023-01-01';  -- 对索引列使用函数
+WHERE name LIKE '%张三%';                -- 前导通配符
+WHERE age <> 18;                        -- 不等于操作
+WHERE status IS NULL;                   -- NULL判断
+
+-- 优化写法
+WHERE create_time >= '2023-01-01'
+            AND create_time < '2023-01-02';
+WHERE name LIKE '张三%';                  -- 后导通配符
+WHERE age < 18 OR age > 18;              -- 改写为范围查询
+WHERE status = 0 OR status IS NULL;      -- 合并处理
+        </div>
+    </div>
+    <div class="footer">墨墨说-MySQL</div>
+</div>
+
+<!-- 卡片3：索引优化实战 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>索引优化</h1>
+
+        <h2>EXPLAIN执行计划分析</h2>
+        <table class="comparison-table">
+            <tr>
+                <th>type值</th>
+                <th>性能</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>system</td>
+                <td>最优</td>
+                <td>系统表，只有一行</td>
+            </tr>
+            <tr>
+                <td>const</td>
+                <td>优</td>
+                <td>常量查询</td>
+            </tr>
+            <tr>
+                <td>eq_ref</td>
+                <td>优</td>
+                <td>唯一索引扫描</td>
+            </tr>
+            <tr>
+                <td>ref</td>
+                <td>良</td>
+                <td>非唯一索引扫描</td>
+            </tr>
+            <tr>
+                <td>range</td>
+                <td>中</td>
+                <td>范围扫描</td>
+            </tr>
+            <tr>
+                <td>index</td>
+                <td>差</td>
+                <td>索引全扫描</td>
+            </tr>
+            <tr>
+                <td>ALL</td>
+                <td>最差</td>
+                <td>全表扫描</td>
+            </tr>
+        </table>
+    </div>
+    <div class="footer">墨墨说-MySQL</div>
+</div>
+
+<!-- 卡片4：第二阶段优化策略 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>第二阶段：中成本优化</h1>
+        <div class="phase-indicator">
+            <div class="phase phase-2">表结构与存储层面</div>
+        </div>
+
+        <h2>存储引擎选择</h2>
+        <table class="comparison-table">
+            <tr>
+                <th>引擎</th>
+                <th>适用场景</th>
+                <th>特点</th>
+            </tr>
+            <tr>
+                <td>InnoDB</td>
+                <td>默认选择</td>
+                <td>事务安全、行级锁、外键</td>
+            </tr>
+            <tr>
+                <td>MyISAM</td>
+                <td>只读场景</td>
+                <td>表级锁、全文索引</td>
+            </tr>
+            <tr>
+                <td>Memory</td>
+                <td>临时数据</td>
+                <td>内存存储、极快</td>
+            </tr>
+        </table>
+    </div>
+    <div class="footer">墨墨说-MySQL</div>
+</div>
+
+<!-- 卡片5：第三阶段优化策略 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>第三阶段：高成本优化</h1>
+        <div class="phase-indicator">
+            <div class="phase phase-3">架构与系统层面</div>
+        </div>
+
+        <div class="warning">
+            ⚠️ 架构级改造，成本高、复杂度高 - 最后考虑
+        </div>
+
+        <h2>1. 读写分离架构</h2>
+        <div class="optimization-flow">
+            <div class="flow-step step-1">写操作 → 主库</div>
+            <div class="arrow">↓ 数据同步</div>
+            <div class="flow-step step-2">读操作 → 从库1</div>
+            <div class="flow-step step-3">读操作 → 从库2</div>
+        </div>
+
+    </div>
+    <div class="footer">墨墨说-MySQL</div>
+</div>
+
+<!-- 卡片6：分库分表策略 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>分库分表</h1>
+
+        <h2>分库分表中间件</h2>
+        <table class="comparison-table">
+            <tr>
+                <th>中间件</th>
+                <th>特点</th>
+                <th>适用场景</th>
+            </tr>
+            <tr>
+                <td>ShardingSphere</td>
+                <td>Apache项目，功能全面</td>
+                <td>Java生态，企业级应用</td>
+            </tr>
+            <tr>
+                <td>MyCat</td>
+                <td>成熟稳定，社区活跃</td>
+                <td>传统分库分表需求</td>
+            </tr>
+            <tr>
+                <td>Vitess</td>
+                <td>云原生，K8s友好</td>
+                <td>大规模集群，云环境</td>
+            </tr>
+        </table>
+
+        <h2>3. 引入缓存层</h2>
+        <div class="code-block">public User getUser(Long userId) {
+    String key = "user:" + userId;
+    User user = redis.get(key);
+    if (user != null) {
+        return user;
+    }
+
+    user = userMapper.selectById(userId);
+    if (user != null) {
+        redis.setex(key, 3600, user); // 缓存1小时
+    }
+    return user;
+}</div>
+    </div>
+    <div class="footer">墨墨说-MySQL</div>
+</div>
+
+<!-- 卡片7：优化总结与监控 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h1>优化总结与监控</h1>
+
+        <h2>优化路径总结</h2>
+        <div class="optimization-flow">
+            <div class="flow-step step-1">阶段1：SQL与索引优化</div>
+            <div class="arrow">↓ 成本低，效果明显</div>
+            <div class="flow-step step-2">阶段2：表结构优化</div>
+            <div class="arrow">↓ 中等成本，结构调整</div>
+            <div class="flow-step step-3">阶段3：架构优化</div>
+            <div class="arrow">↓ 高成本，系统改造</div>
+        </div>
+
+        <div class="success">
+            🎯 优化原则：从简单到复杂，从低成本到高成本<br>
+            持续监控，预防优于治疗
+        </div>
+    </div>
+    <div class="footer">墨墨说-MySQL</div>
+</div>
+<!-- 卡片7：优化总结与监控 -->
+<div class="card">
+    <div class="header"></div>
+    <div class="content">
+        <h2>成本效益分析</h2>
+        <div class="cost-benefit">
+            <div class="benefit-item">
+                <strong>阶段1</strong><br>
+                成本：低<br>
+                效果：显著<br>
+                优先级：高
+            </div>
+            <div class="benefit-item">
+                <strong>阶段2</strong><br>
+                成本：中<br>
+                效果：明显<br>
+                优先级：中
+            </div>
+            <div class="benefit-item">
+                <strong>阶段3</strong><br>
+                成本：高<br>
+                效果：巨大<br>
+                优先级：低
+            </div>
+        </div>
+
+        <h2>性能监控指标</h2>
+        <ul>
+            <li><span class="highlight">QPS/TPS</span>：每秒查询/事务数</li>
+            <li><span class="highlight">慢查询率</span>：执行时间超过阈值</li>
+            <li><span class="highlight">连接数使用率</span>：并发处理能力</li>
+            <li><span class="highlight">缓存命中率</span>：InnoDB缓冲池效果</li>
+        </ul>
+
+    </div>
+    <div class="footer">墨墨说-MySQL</div>
+</div>
+</body>
+</html>
